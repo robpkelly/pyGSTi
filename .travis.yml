@@ -12,6 +12,7 @@ branches:
     - beta
     - develop
     - ci-fixes
+    - private-formatting-fixes
 
 # Hold off testing feature & bugfix branches in case this competes w/other testing.
 #    - /^feature-.*$/
