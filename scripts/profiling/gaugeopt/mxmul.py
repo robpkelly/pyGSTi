@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
 from pygsti.tools.mpitools import mpidot, distribute_for_dot
-from pygsti.tools.timed_block   import timed_block
+from pygsti.tools.timed_block import timed_block
 import numpy as np
-                  
-from random      import randint
+
+from random import randint
 from collections import defaultdict
+
 
 def main():
     size = 100
@@ -29,11 +30,11 @@ def main():
 
     if Comm.Get_rank() == 0:
         nProcessors = Comm.Get_size()
-        avg         = lambda l : sum(l) / len(l)
-        npTime      = avg(timeDict['np.dot'])
-        mpiTime     = avg(timeDict['mpidot'])
-        speedup     = npTime / mpiTime 
-        linearity   = speedup / nProcessors
+        def avg(l): return sum(l) / len(l)
+        npTime = avg(timeDict['np.dot'])
+        mpiTime = avg(timeDict['mpidot'])
+        speedup = npTime / mpiTime
+        linearity = speedup / nProcessors
         '''
         print('np: {}s'.format(npTime))
         print('mpi: {}s'.format(mpiTime))
@@ -41,5 +42,6 @@ def main():
             speedup, nProcessors, linearity))
         '''
         print('{},{},{}'.format(speedup, nProcessors, linearity))
+
 
 main()

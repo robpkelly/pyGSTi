@@ -19,7 +19,7 @@ try:
     from Cython.Build import cythonize
     ext_modules = [
         Extension("pygsti.tools.fastcalc",
-                  sources=["packages/pygsti/tools/fastcalc.pyx"], # , "fastcalc.c
+                  sources=["packages/pygsti/tools/fastcalc.pyx"],  # , "fastcalc.c
                   # Cython docs on NumPy usage should mention this!
                   #define_macros = [('NPY_NO_DEPRECATED_API','NPY_1_7_API_VERSION')],
                   #leave above commented, see http://docs.cython.org/en/latest/src/reference/compilation.html#configuring-the-c-build
@@ -31,20 +31,20 @@ try:
                   sources=["packages/pygsti/objects/fastopcalc.pyx"],
                   include_dirs=['.', np.get_include()],
                   language="c++",
-                  extra_compile_args=["-std=c++11"], #,"-stdlib=libc++"
+                  extra_compile_args=["-std=c++11"],  # ,"-stdlib=libc++"
                   extra_link_args=["-std=c++11"]
                   ),
         Extension("pygsti.objects.fastreplib",
                   sources=["packages/pygsti/objects/fastreplib.pyx", "packages/pygsti/objects/fastreps.cpp"],
                   include_dirs=['.', np.get_include()],
                   language="c++",
-                  extra_compile_args=["-std=c++11"], #,"-stdlib=libc++"
+                  extra_compile_args=["-std=c++11"],  # ,"-stdlib=libc++"
                   extra_link_args=["-std=c++11"]
                   )
 
-        ]
+    ]
     ext_modules = cythonize(ext_modules)
-except ImportError: # if Cython isn't available (e.g. in readthedocs) just skip
+except ImportError:  # if Cython isn't available (e.g. in readthedocs) just skip
     #print warning??
     ext_modules = []
 
@@ -81,7 +81,7 @@ setup(name='pyGSTi',
       packages=['pygsti', 'pygsti.algorithms', 'pygsti.baseobjs', 'pygsti.construction', 'pygsti.drivers', 'pygsti.extras', 'pygsti.extras.rb', 'pygsti.extras.rpe', 'pygsti.extras.drift', 'pygsti.io', 'pygsti.objects', 'pygsti.optimize', 'pygsti.report', 'pygsti.tools'],
       package_dir={'': 'packages'},
       package_data={'pygsti.tools': ['fastcalc.pyx'],
-                    'pygsti.objects': ['fastopcalc.pyx','fastreplib.pyx','fastreps.cpp','fastreps.h'],
+                    'pygsti.objects': ['fastopcalc.pyx', 'fastreplib.pyx', 'fastreps.cpp', 'fastreps.h'],
                     'pygsti.report': ['templates/*.tex', 'templates/*.html', 'templates/*.json',
                                       'templates/report_notebook/*.txt',
                                       'templates/standard_html_report/*.html',
@@ -90,31 +90,31 @@ setup(name='pyGSTi',
                                       'templates/offline/*.css',
                                       'templates/offline/fonts/*',
                                       'templates/offline/images/*']},
-      requires=['numpy','scipy','plotly','ply'],
-      install_requires=['numpy>=1.15.0','scipy','plotly','ply'],
-      extras_require = {
-           'diamond norm computation':  ['cvxpy', 'cvxopt'],
-           'nose testing' : ['nose'],
-           'accurate memory profiling' : ['psutil'],
-           'multi-processor support' : ['mpi4py'],
+      requires=['numpy', 'scipy', 'plotly', 'ply'],
+      install_requires=['numpy>=1.15.0', 'scipy', 'plotly', 'ply'],
+      extras_require={
+           'diamond norm computation': ['cvxpy', 'cvxopt'],
+           'nose testing': ['nose'],
+           'accurate memory profiling': ['psutil'],
+           'multi-processor support': ['mpi4py'],
            'evolutionary optimization algorithm': ['deap'],
            'pickling report tables': ['pandas'],
            'generating PDFs of report figures': ['matplotlib'],
-           'generating report notebooks': ['ipython','notebook'],
+           'generating report notebooks': ['ipython', 'notebook'],
            'read/write message pack format': ['msgpack'],
            'extension modules': ['cython'],
            'formatting': ['autopep8', 'flake8'],
-           'complete': ['nose','nose-timer','cython','cvxpy','cvxopt','psutil',
-                        'mpi4py','pandas','matplotlib','ipython','notebook',
-                        'msgpack','coverage','zmq','rednose','flake8'],
-           'travisci': ['nose','nose-timer','cython','cvxpy','cvxopt','psutil',
-                        'mpi4py','pandas','msgpack','coverage','zmq','rednose',
+           'complete': ['nose', 'nose-timer', 'cython', 'cvxpy', 'cvxopt', 'psutil',
+                        'mpi4py', 'pandas', 'matplotlib', 'ipython', 'notebook',
+                        'msgpack', 'coverage', 'zmq', 'rednose', 'flake8'],
+           'travisci': ['nose', 'nose-timer', 'cython', 'cvxpy', 'cvxopt', 'psutil',
+                        'mpi4py', 'pandas', 'msgpack', 'coverage', 'zmq', 'rednose',
                         'flake8']
       },
-      platforms = ["any"],
-      url = 'http://www.pygsti.info',
-      download_url = 'https://github.com/pyGSTio/pyGSTi/tarball/master',
-      keywords = ['pygsti', 'tomography', 'gate set', 'pigsty', 'pig', 'quantum', 'qubit'],
-      classifiers = list(filter(None, classifiers.split("\n"))),
+      platforms=["any"],
+      url='http://www.pygsti.info',
+      download_url='https://github.com/pyGSTio/pyGSTi/tarball/master',
+      keywords=['pygsti', 'tomography', 'gate set', 'pigsty', 'pig', 'quantum', 'qubit'],
+      classifiers=list(filter(None, classifiers.split("\n"))),
       ext_modules=ext_modules,
-     )
+      )

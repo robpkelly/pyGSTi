@@ -28,32 +28,35 @@ from . import replib
 # For debug: sometimes helpful as it prints (python-only) tracebacks from segfaults
 #import faulthandler
 #faulthandler.enable()
-    
+
 
 try:
     from . import fastopcalc as _fastopcalc
+
     def _bulk_eval_compact_polys(vtape, ctape, paramvec, dest_shape):
         if _np.iscomplexobj(ctape):
             ret = _fastopcalc.fast_bulk_eval_compact_polys_complex(
                 vtape, ctape, paramvec, dest_shape)
-            assert(_np.linalg.norm(_np.imag(ret)) < 1e-6 ), \
-                "norm(Im part) = %g" % _np.linalg.norm(_np.imag(ret)) # DEBUG CHECK
-            return _np.real( ret )
+            assert(_np.linalg.norm(_np.imag(ret)) < 1e-6), \
+                "norm(Im part) = %g" % _np.linalg.norm(_np.imag(ret))  # DEBUG CHECK
+            return _np.real(ret)
         else:
-            return _np.real( _fastopcalc.fast_bulk_eval_compact_polys(
-                vtape, ctape, paramvec, dest_shape) )
+            return _np.real(_fastopcalc.fast_bulk_eval_compact_polys(
+                vtape, ctape, paramvec, dest_shape))
 except ImportError:
     from .polynomial import bulk_eval_compact_polys as poly_bulk_eval_compact_polys
+
     def _bulk_eval_compact_polys(vtape, ctape, paramvec, dest_shape):
         ret = poly_bulk_eval_compact_polys(vtape, ctape, paramvec, dest_shape)
         if _np.iscomplexobj(ret):
-            assert(_np.linalg.norm(_np.imag(ret)) < 1e-6 ), \
-                "norm(Im part) = %g" % _np.linalg.norm(_np.imag(ret)) # DEBUG CHECK
-            ret = _np.real( ret )
-        return ret # always return a *real* vector
-    
+            assert(_np.linalg.norm(_np.imag(ret)) < 1e-6), \
+                "norm(Im part) = %g" % _np.linalg.norm(_np.imag(ret))  # DEBUG CHECK
+            ret = _np.real(ret)
+        return ret  # always return a *real* vector
+
 
 _dummy_profiler = _DummyProfiler()
+
 
 class TermForwardSimulator(ForwardSimulator):
     """
@@ -84,13 +87,13 @@ class TermForwardSimulator(ForwardSimulator):
             An auto-gator object that may be used to construct virtual gates
             for use in computations.
 
-        max_order : int 
+        max_order : int
             The maximum order of error-rate terms to include in probability
             computations.
 
         cache : dict, optional
             A dictionary of pre-computed compact polynomial objects.  Keys are
-            `(max_order, rholabel, elabel, circuit)` tuples, where 
+            `(max_order, rholabel, elabel, circuit)` tuples, where
             `max_order` is an integer, `rholabel` and `elabel` are
             :class:`Label` objects, and `circuit` is a :class:`Circuit`.
             Computed values are added to any dictionary that is supplied, so
@@ -105,40 +108,39 @@ class TermForwardSimulator(ForwardSimulator):
         self.cache = cache
         super(TermForwardSimulator, self).__init__(
             dim, simplified_op_server, paramvec)
-        if self.evotype not in ("svterm","cterm"):
+        if self.evotype not in ("svterm", "cterm"):
             raise ValueError(("Evolution type %s is incompatbile with "
                               "term-based calculations" % self.evotype))
-        
+
     def copy(self):
         """ Return a shallow copy of this MatrixForwardSimulator """
         return TermForwardSimulator(self.dim, self.sos, self.paramvec,
                                     self.max_order, self.cache)
 
-        
     def _rhoE_from_spamTuple(self, spamTuple):
-        assert( len(spamTuple) == 2 )
-        if isinstance(spamTuple[0],_Label):
-            rholabel,elabel = spamTuple
+        assert(len(spamTuple) == 2)
+        if isinstance(spamTuple[0], _Label):
+            rholabel, elabel = spamTuple
             rho = self.sos.get_prep(rholabel)
-            E   = self.sos.get_effect(elabel)
+            E = self.sos.get_effect(elabel)
         else:
             # a "custom" spamLabel consisting of a pair of SPAMVec (or array)
             #  objects: (prepVec, effectVec)
             rho, E = spamTuple
-        return rho,E
+        return rho, E
 
     def _rhoEs_from_labels(self, rholabel, elabels):
         """ Returns SPAMVec *objects*, so must call .todense() later """
         rho = self.sos.get_prep(rholabel)
-        Es = [ self.sos.get_effect(elabel) for elabel in elabels ]
+        Es = [self.sos.get_effect(elabel) for elabel in elabels]
         #No support for "custom" spamlabel stuff here
-        return rho,Es
+        return rho, Es
 
     def propagate_state(self, rho, factors, adjoint=False):
         # TODO UPDATE
-        """ 
+        """
         State propagation by MapOperator objects which have 'acton'
-        methods.  This function could easily be overridden to 
+        methods.  This function could easily be overridden to
         perform some more sophisticated state propagation
         (i.e. Monte Carlo) in the future.
 
@@ -156,10 +158,10 @@ class TermForwardSimulator(ForwardSimulator):
         """
         if adjoint:
             for f in factors:
-                rho = f.adjoint_acton(rho) # LEXICOGRAPHICAL VS MATRIX ORDER
+                rho = f.adjoint_acton(rho)  # LEXICOGRAPHICAL VS MATRIX ORDER
         else:
             for f in factors:
-                rho = f.acton(rho) # LEXICOGRAPHICAL VS MATRIX ORDER
+                rho = f.acton(rho)  # LEXICOGRAPHICAL VS MATRIX ORDER
         return rho
 
     def prs_as_polys(self, rholabel, elabels, circuit, comm=None, memLimit=None):
@@ -172,21 +174,21 @@ class TermForwardSimulator(ForwardSimulator):
         ----------
         rho_label : Label
             The state preparation label.
-        
+
         elabels : list
             A list of :class:`Label` objects giving the *simplified* effect labels.
 
         circuit : Circuit or tuple
             A tuple-like object of *simplified* gates (e.g. may include
             instrument elements like 'Imyinst_0')
-        
+
         comm : mpi4py.MPI.Comm, optional
             When not None, an MPI communicator for distributing the computation
             across multiple processors.
 
         memLimit : int, optional
             A memory limit in bytes to impose on the computation.
-        
+
         Returns
         -------
         list
@@ -196,20 +198,19 @@ class TermForwardSimulator(ForwardSimulator):
         #cache_keys = [(self.max_order, rholabel, elabel, circuit) for elabel in tuple(elabels)]
         #if self.cache is not None and all([(ck in self.cache) for ck in cache_keys]):
         #    return [ self.cache[ck] for ck in cache_keys ]
-        
+
         fastmode = True
         if self.evotype == "svterm":
             poly_reps = replib.SV_prs_as_polys(self, rholabel, elabels, circuit, comm, memLimit, fastmode)
-        else: # "cterm" (stabilizer-based term evolution)
+        else:  # "cterm" (stabilizer-based term evolution)
             poly_reps = replib.SB_prs_as_polys(self, rholabel, elabels, circuit, comm, memLimit, fastmode)
-        prps = [ _Polynomial.fromrep(rep) for rep in poly_reps ]
+        prps = [_Polynomial.fromrep(rep) for rep in poly_reps]
 
         #Cache hold *compact* polys now: see prs_as_compact_polys
         #if self.cache is not None:
         #    for ck,poly in zip(cache_keys,prps):
         #        self.cache[ck] = poly
         return prps
-        
 
     def pr_as_poly(self, spamTuple, circuit, comm=None, memLimit=None):
         """
@@ -224,14 +225,14 @@ class TermForwardSimulator(ForwardSimulator):
         circuit : Circuit or tuple
             A tuple-like object of *simplified* gates (e.g. may include
             instrument elements like 'Imyinst_0')
-        
+
         comm : mpi4py.MPI.Comm, optional
             When not None, an MPI communicator for distributing the computation
             across multiple processors.
 
         memLimit : int, optional
             A memory limit in bytes to impose on the computation.
-        
+
         Returns
         -------
         Polynomial
@@ -249,21 +250,21 @@ class TermForwardSimulator(ForwardSimulator):
         ----------
         rholabel : Label
             The state preparation label.
-        
+
         elabels : list
             A list of :class:`Label` objects giving the *simplified* effect labels.
 
         circuit : Circuit or tuple
             A tuple-like object of *simplified* gates (e.g. may include
             instrument elements like 'Imyinst_0')
-        
+
         comm : mpi4py.MPI.Comm, optional
             When not None, an MPI communicator for distributing the computation
             across multiple processors.
 
         memLimit : int, optional
             A memory limit in bytes to impose on the computation.
-        
+
         Returns
         -------
         list
@@ -271,18 +272,17 @@ class TermForwardSimulator(ForwardSimulator):
         """
         cache_keys = [(self.max_order, rholabel, elabel, circuit) for elabel in tuple(elabels)]
         if self.cache is not None and all([(ck in self.cache) for ck in cache_keys]):
-            return [ self.cache[ck] for ck in cache_keys ]
+            return [self.cache[ck] for ck in cache_keys]
 
         raw_prps = self.prs_as_polys(rholabel, elabels, circuit, comm, memLimit)
-        prps = [ poly.compact(force_complex=True) for poly in raw_prps ]
-          # create compact polys w/*complex* coeffs always since we're likely
-          # going to concatenate a bunch of them.
+        prps = [poly.compact(force_complex=True) for poly in raw_prps]
+        # create compact polys w/*complex* coeffs always since we're likely
+        # going to concatenate a bunch of them.
 
         if self.cache is not None:
-            for ck,poly in zip(cache_keys,prps):
+            for ck, poly in zip(cache_keys, prps):
                 self.cache[ck] = poly
         return prps
-        
 
     def prs(self, rholabel, elabels, circuit, clipTo, bUseScaling=False):
         """
@@ -294,7 +294,7 @@ class TermForwardSimulator(ForwardSimulator):
         ----------
         rholabel : Label
             The state preparation label.
-        
+
         elabels : list
             A list of :class:`Label` objects giving the *simplified* effect labels.
 
@@ -316,12 +316,11 @@ class TermForwardSimulator(ForwardSimulator):
             the elements of `elabels`.
         """
         cpolys = self.prs_as_compact_polys(rholabel, elabels, circuit)
-        vals = [ _bulk_eval_compact_polys(cpoly[0], cpoly[1], self.paramvec, (1,))[0]
-                 for cpoly in cpolys ]
-        ps = _np.array([ _np.real_if_close(val) for val in vals ])
-        if clipTo is not None:  ps = _np.clip( ps, clipTo[0], clipTo[1] )
+        vals = [_bulk_eval_compact_polys(cpoly[0], cpoly[1], self.paramvec, (1,))[0]
+                for cpoly in cpolys]
+        ps = _np.array([_np.real_if_close(val) for val in vals])
+        if clipTo is not None: ps = _np.clip(ps, clipTo[0], clipTo[1])
         return ps
-    
 
     def dpr(self, spamTuple, circuit, returnPr, clipTo):
         """
@@ -354,19 +353,18 @@ class TermForwardSimulator(ForwardSimulator):
         probability : float
             only returned if returnPr == True.
         """
-        dp = _np.empty( (1,self.Np), 'd' )
-        
+        dp = _np.empty((1, self.Np), 'd')
+
         poly = self.pr_as_poly(spamTuple, circuit, comm=None, memLimit=None)
         for i in range(self.Np):
             dpoly_di = poly.deriv(i)
-            dp[0,i] = dpoly.evaluate(self.paramvec)
-            
+            dp[0, i] = dpoly.evaluate(self.paramvec)
+
         if returnPr:
             p = poly.evaluate(self.paramvec)
-            if clipTo is not None:  p = _np.clip( p, clipTo[0], clipTo[1] )
+            if clipTo is not None: p = _np.clip(p, clipTo[0], clipTo[1])
             return dp, p
         else: return dp
-
 
     def hpr(self, spamTuple, circuit, returnPr, returnDeriv, clipTo):
         """
@@ -408,38 +406,36 @@ class TermForwardSimulator(ForwardSimulator):
         probability : float
             only returned if returnPr == True.
         """
-        hp = _np.empty( (1,self.Np, self.Np), 'd' )
+        hp = _np.empty((1, self.Np, self.Np), 'd')
         if returnDeriv:
-            dp = _np.empty( (1,self.Np), 'd' )
-        
+            dp = _np.empty((1, self.Np), 'd')
+
         poly = self.pr_as_poly(spamTuple, circuit, comm=None, memLimit=None)
         for j in range(self.Np):
             dpoly_dj = poly.deriv(j)
             if returnDeriv:
-                dp[0,j] = dpoly_dj.evaluate(self.paramvec)
-                
+                dp[0, j] = dpoly_dj.evaluate(self.paramvec)
+
             for i in range(self.Np):
                 dpoly_didj = dpoly_dj.deriv(i)
-                hp[0,i,j] = dpoly_didj.evaluate(self.paramvec)
+                hp[0, i, j] = dpoly_didj.evaluate(self.paramvec)
 
         if returnPr:
             p = poly.evaluate(self.paramvec)
-            if clipTo is not None:  p = _np.clip( p, clipTo[0], clipTo[1] )
-            
+            if clipTo is not None: p = _np.clip(p, clipTo[0], clipTo[1])
+
             if returnDeriv: return hp, dp, p
-            else:           return hp, p
+            else: return hp, p
         else:
             if returnDeriv: return hp, dp
-            else:           return hp
-
+            else: return hp
 
     def default_distribute_method(self):
-        """ 
+        """
         Return the preferred MPI distribution mode for this calculator.
         """
         return "circuits"
 
-        
     def construct_evaltree(self, simplified_circuits, numSubtreeComms):
         """
         TODO: docstring (update)
@@ -448,8 +444,6 @@ class TermForwardSimulator(ForwardSimulator):
         evTree = _TermEvalTree()
         evTree.initialize(simplified_circuits, numSubtreeComms)
         return evTree
-
-
 
     def estimate_mem_usage(self, subcalls, cache_size, num_subtrees,
                            num_subtree_proc_groups, num_param1_groups,
@@ -474,7 +468,7 @@ class TermForwardSimulator(ForwardSimulator):
             the subtrees.  It can often be useful to have fewer processor groups
             then subtrees (even == 1) in order to perform the parallelization
             over the parameter groups.
-        
+
         num_param1_groups : int
             The number of groups to divide the first-derivative parameters into.
             Computation will be automatically parallelized over these groups.
@@ -486,37 +480,35 @@ class TermForwardSimulator(ForwardSimulator):
         num_final_strs : int
             The number of final strings (may be less than or greater than
             `cacheSize`) the tree will hold.
-        
+
         Returns
         -------
         int
             The memory estimate in bytes.
         """
-        np1,np2 = num_param1_groups, num_param2_groups
-        FLOATSIZE = 8 # in bytes: TODO: a better way
+        np1, np2 = num_param1_groups, num_param2_groups
+        FLOATSIZE = 8  # in bytes: TODO: a better way
 
         dim = self.dim
-        wrtLen1 = (self.Np+np1-1) // np1 # ceiling(num_params / np1)
-        wrtLen2 = (self.Np+np2-1) // np2 # ceiling(num_params / np2)
+        wrtLen1 = (self.Np + np1 - 1) // np1  # ceiling(num_params / np1)
+        wrtLen2 = (self.Np + np2 - 1) // np2  # ceiling(num_params / np2)
 
         mem = 0
         for fnName in subcalls:
             if fnName == "bulk_fill_probs":
-                mem += num_final_strs # pr cache final (* #elabels!)
+                mem += num_final_strs  # pr cache final (* #elabels!)
 
             elif fnName == "bulk_fill_dprobs":
-                mem += num_final_strs * wrtLen1 # dpr cache final (* #elabels!)
+                mem += num_final_strs * wrtLen1  # dpr cache final (* #elabels!)
 
             elif fnName == "bulk_fill_hprobs":
                 mem += num_final_strs * wrtLen1 * wrtLen2  # hpr cache final (* #elabels!)
-                
+
             else:
                 raise ValueError("Unknown subcall name: %s" % fnName)
-        
+
         return mem * FLOATSIZE
 
-
-    
     def bulk_fill_probs(self, mxToFill, evalTree, clipTo=None, check=False,
                         comm=None):
         """
@@ -529,9 +521,9 @@ class TermForwardSimulator(ForwardSimulator):
         a mapping of final elements (i.e. probabilities) to gate-only sequence
         and prep/effect pairs.  The evaluation tree organizes how to efficiently
         compute the gate-only sequences.  This routine fills in `mxToFill`, which
-        must have length equal to the number of final elements (this can be 
+        must have length equal to the number of final elements (this can be
         obtained by `evalTree.num_final_elements()`.  To interpret which elements
-        correspond to which strings and outcomes, you'll need the mappings 
+        correspond to which strings and outcomes, you'll need the mappings
         generated when the original list of `Circuits` was simplified.
 
         Parameters
@@ -574,34 +566,32 @@ class TermForwardSimulator(ForwardSimulator):
 
             def calc_and_fill(rholabel, elabels, fIndsList, gIndsList, pslc1, pslc2, sumInto):
                 """ Compute and fill result quantities for given arguments """
-                polys = evalSubTree.get_p_polys(self, rholabel, elabels, mySubComm) # computes polys if necessary
+                polys = evalSubTree.get_p_polys(self, rholabel, elabels, mySubComm)  # computes polys if necessary
 
-                for i,(fInds,gInds) in enumerate(zip(fIndsList,gIndsList)):
+                for i, (fInds, gInds) in enumerate(zip(fIndsList, gIndsList)):
                     #use cached data to final values
-                    prCache = _bulk_eval_compact_polys(polys[i][0], polys[i][1], self.paramvec, (nStrs,) ) # ( nCircuits,)
-                    ps = evalSubTree.final_view( prCache, axis=0) # ( nCircuits,)
+                    prCache = _bulk_eval_compact_polys(polys[i][0], polys[i][1], self.paramvec, (nStrs,))  # ( nCircuits,)
+                    ps = evalSubTree.final_view(prCache, axis=0)  # ( nCircuits,)
                     _fas(mxToFill, [fInds], ps[gInds], add=sumInto)
 
             self._fill_result_tuple_collectrho((mxToFill,), evalSubTree,
-                                     slice(None), slice(None), calc_and_fill )
+                                               slice(None), slice(None), calc_and_fill)
 
         #collect/gather results
-        subtreeElementIndices = [ t.final_element_indices(evalTree) for t in subtrees]
+        subtreeElementIndices = [t.final_element_indices(evalTree) for t in subtrees]
         _mpit.gather_indices(subtreeElementIndices, subTreeOwners,
-                             mxToFill,[], 0, comm)
+                             mxToFill, [], 0, comm)
         #note: pass mxToFill, dim=(KS,), so gather mxToFill[felInds] (axis=0)
 
         if clipTo is not None:
-            _np.clip( mxToFill, clipTo[0], clipTo[1], out=mxToFill ) # in-place clip
+            _np.clip(mxToFill, clipTo[0], clipTo[1], out=mxToFill)  # in-place clip
 
 #Will this work?? TODO
 #        if check:
 #            self._check(evalTree, spam_label_rows, mxToFill, clipTo=clipTo)
 
-
-
     def bulk_fill_dprobs(self, mxToFill, evalTree,
-                         prMxToFill=None,clipTo=None,check=False,
+                         prMxToFill=None, clipTo=None, check=False,
                          comm=None, wrtFilter=None, wrtBlockSize=None,
                          profiler=None, gatherMemLimit=None):
         """
@@ -615,7 +605,7 @@ class TermForwardSimulator(ForwardSimulator):
         ----------
         mxToFill : numpy ndarray
           an already-allocated ExM numpy array where E is the total number of
-          computed elements (i.e. evalTree.num_final_elements()) and M is the 
+          computed elements (i.e. evalTree.num_final_elements()) and M is the
           number of model parameters.
 
         evalTree : EvalTree
@@ -672,13 +662,13 @@ class TermForwardSimulator(ForwardSimulator):
         if profiler is None: profiler = _dummy_profiler
 
         if wrtFilter is not None:
-            assert(wrtBlockSize is None) #Cannot specify both wrtFilter and wrtBlockSize
-            wrtSlice = _slct.list_to_slice(wrtFilter) #for now, require the filter specify a slice
+            assert(wrtBlockSize is None)  # Cannot specify both wrtFilter and wrtBlockSize
+            wrtSlice = _slct.list_to_slice(wrtFilter)  # for now, require the filter specify a slice
         else:
             wrtSlice = None
 
-        profiler.mem_check("bulk_fill_dprobs: begin (expect ~ %.2fGB)" 
-                           % (mxToFill.nbytes/(1024.0**3)) )
+        profiler.mem_check("bulk_fill_dprobs: begin (expect ~ %.2fGB)"
+                           % (mxToFill.nbytes / (1024.0**3)))
 
         #get distribution across subtrees (groups if needed)
         subtrees = evalTree.get_sub_trees()
@@ -692,53 +682,51 @@ class TermForwardSimulator(ForwardSimulator):
 
             #Free memory from previous subtree iteration before computing caches
             paramSlice = slice(None)
-            fillComm = mySubComm #comm used by calc_and_fill
+            fillComm = mySubComm  # comm used by calc_and_fill
 
             def calc_and_fill(rholabel, elabels, fIndsList, gIndsList, pslc1, pslc2, sumInto):
                 """ Compute and fill result quantities for given arguments """
                 tm = _time.time()
-                
+
                 if prMxToFill is not None:
                     polys = evalSubTree.get_p_polys(self, rholabel, elabels, fillComm)
-                    for i,(fInds,gInds) in enumerate(zip(fIndsList,gIndsList)):
-                        prCache = _bulk_eval_compact_polys(polys[i][0], polys[i][1], self.paramvec, (nStrs,) ) # ( nCircuits,)
-                        ps = evalSubTree.final_view( prCache, axis=0) # ( nCircuits,)
+                    for i, (fInds, gInds) in enumerate(zip(fIndsList, gIndsList)):
+                        prCache = _bulk_eval_compact_polys(polys[i][0], polys[i][1], self.paramvec, (nStrs,))  # ( nCircuits,)
+                        ps = evalSubTree.final_view(prCache, axis=0)  # ( nCircuits,)
                         _fas(prMxToFill, [fInds], ps[gInds], add=sumInto)
 
                 #Fill cache info
                 dpolys = evalSubTree.get_dp_polys(self, rholabel, elabels, paramSlice, fillComm)
                 nP = self.Np if (paramSlice is None or paramSlice.start is None) else _slct.length(paramSlice)
-                for i,(fInds,gInds) in enumerate(zip(fIndsList,gIndsList)):
-                    dprCache = _bulk_eval_compact_polys(dpolys[i][0], dpolys[i][1], self.paramvec, (nStrs,nP) )
-                    dps = evalSubTree.final_view( dprCache, axis=0) # ( nCircuits, nDerivCols)
+                for i, (fInds, gInds) in enumerate(zip(fIndsList, gIndsList)):
+                    dprCache = _bulk_eval_compact_polys(dpolys[i][0], dpolys[i][1], self.paramvec, (nStrs, nP))
+                    dps = evalSubTree.final_view(dprCache, axis=0)  # ( nCircuits, nDerivCols)
                     _fas(mxToFill, [fInds, pslc1], dps[gInds], add=sumInto)
                 profiler.add_time("bulk_fill_dprobs: calc_and_fill", tm)
 
-                
             #Set wrtBlockSize to use available processors if it isn't specified
             if wrtFilter is None:
-                blkSize = wrtBlockSize #could be None
+                blkSize = wrtBlockSize  # could be None
                 if (mySubComm is not None) and (mySubComm.Get_size() > 1):
                     comm_blkSize = self.Np / mySubComm.Get_size()
                     blkSize = comm_blkSize if (blkSize is None) \
-                        else min(comm_blkSize, blkSize) #override with smaller comm_blkSize
+                        else min(comm_blkSize, blkSize)  # override with smaller comm_blkSize
             else:
-                blkSize = None # wrtFilter dictates block
-
+                blkSize = None  # wrtFilter dictates block
 
             if blkSize is None:
                 #Fill derivative cache info
-                paramSlice = wrtSlice #specifies which deriv cols calc_and_fill computes
-                
+                paramSlice = wrtSlice  # specifies which deriv cols calc_and_fill computes
+
                 #Compute all requested derivative columns at once
-                self._fill_result_tuple_collectrho( (prMxToFill, mxToFill), evalSubTree,
-                                                    slice(None), slice(None), calc_and_fill )
+                self._fill_result_tuple_collectrho((prMxToFill, mxToFill), evalSubTree,
+                                                   slice(None), slice(None), calc_and_fill)
                 profiler.mem_check("bulk_fill_dprobs: post fill")
 
-            else: # Divide columns into blocks of at most blkSize
-                assert(wrtFilter is None) #cannot specify both wrtFilter and blkSize
+            else:  # Divide columns into blocks of at most blkSize
+                assert(wrtFilter is None)  # cannot specify both wrtFilter and blkSize
                 nBlks = int(_np.ceil(self.Np / blkSize))
-                  # num blocks required to achieve desired average size == blkSize
+                # num blocks required to achieve desired average size == blkSize
                 blocks = _mpit.slice_up_range(self.Np, nBlks)
 
                 #distribute derivative computation across blocks
@@ -746,20 +734,20 @@ class TermForwardSimulator(ForwardSimulator):
                     _mpit.distribute_indices(list(range(nBlks)), mySubComm)
                 if blkComm is not None:
                     _warnings.warn("Note: more CPUs(%d)" % mySubComm.Get_size()
-                       +" than derivative columns(%d)!" % self.Np
-                       +" [blkSize = %.1f, nBlks=%d]" % (blkSize,nBlks)) # pragma: no cover
-                fillComm = blkComm #comm used by calc_and_fill
+                                   + " than derivative columns(%d)!" % self.Np
+                                   + " [blkSize = %.1f, nBlks=%d]" % (blkSize, nBlks))  # pragma: no cover
+                fillComm = blkComm  # comm used by calc_and_fill
 
                 for iBlk in myBlkIndices:
-                    paramSlice = blocks[iBlk] #specifies which deriv cols calc_and_fill computes
-                    self._fill_result_tuple_collectrho( 
+                    paramSlice = blocks[iBlk]  # specifies which deriv cols calc_and_fill computes
+                    self._fill_result_tuple_collectrho(
                         (mxToFill,), evalSubTree,
-                        blocks[iBlk], slice(None), calc_and_fill )
+                        blocks[iBlk], slice(None), calc_and_fill)
                     profiler.mem_check("bulk_fill_dprobs: post fill blk")
 
                 #gather results
                 tm = _time.time()
-                _mpit.gather_slices(blocks, blkOwners, mxToFill,[felInds],
+                _mpit.gather_slices(blocks, blkOwners, mxToFill, [felInds],
                                     1, mySubComm, gatherMemLimit)
                 #note: gathering axis 1 of mxToFill[:,fslc], dim=(ks,M)
                 profiler.add_time("MPI IPC", tm)
@@ -767,21 +755,21 @@ class TermForwardSimulator(ForwardSimulator):
 
         #collect/gather results
         tm = _time.time()
-        subtreeElementIndices = [ t.final_element_indices(evalTree) for t in subtrees]
+        subtreeElementIndices = [t.final_element_indices(evalTree) for t in subtrees]
         _mpit.gather_indices(subtreeElementIndices, subTreeOwners,
-                             mxToFill,[], 0, comm, gatherMemLimit)
+                             mxToFill, [], 0, comm, gatherMemLimit)
         #note: pass mxToFill, dim=(KS,M), so gather mxToFill[felInds] (axis=0)
 
         if prMxToFill is not None:
             _mpit.gather_indices(subtreeElementIndices, subTreeOwners,
-                             prMxToFill,[], 0, comm)
+                                 prMxToFill, [], 0, comm)
             #note: pass prMxToFill, dim=(KS,), so gather prMxToFill[felInds] (axis=0)
 
         profiler.add_time("MPI IPC", tm)
         profiler.mem_check("bulk_fill_dprobs: post gather subtrees")
 
         if clipTo is not None and prMxToFill is not None:
-            _np.clip( prMxToFill, clipTo[0], clipTo[1], out=prMxToFill ) # in-place clip
+            _np.clip(prMxToFill, clipTo[0], clipTo[1], out=prMxToFill)  # in-place clip
 
         #TODO: will this work?
         #if check:
@@ -791,11 +779,9 @@ class TermForwardSimulator(ForwardSimulator):
         profiler.add_count("bulk_fill_dprobs count")
         profiler.mem_check("bulk_fill_dprobs: end")
 
-
-
     def bulk_fill_hprobs(self, mxToFill, evalTree,
-                         prMxToFill=None, deriv1MxToFill=None, deriv2MxToFill=None, 
-                         clipTo=None, check=False,comm=None, wrtFilter1=None, wrtFilter2=None,
+                         prMxToFill=None, deriv1MxToFill=None, deriv2MxToFill=None,
+                         clipTo=None, check=False, comm=None, wrtFilter1=None, wrtFilter2=None,
                          wrtBlockSize1=None, wrtBlockSize2=None, gatherMemLimit=None):
         """
         Compute the outcome probability-Hessians for an entire tree of gate
@@ -867,14 +853,14 @@ class TermForwardSimulator(ForwardSimulator):
         """
 
         if wrtFilter1 is not None:
-            assert(wrtBlockSize1 is None and wrtBlockSize2 is None) #Cannot specify both wrtFilter and wrtBlockSize
-            wrtSlice1 = _slct.list_to_slice(wrtFilter1) #for now, require the filter specify a slice
+            assert(wrtBlockSize1 is None and wrtBlockSize2 is None)  # Cannot specify both wrtFilter and wrtBlockSize
+            wrtSlice1 = _slct.list_to_slice(wrtFilter1)  # for now, require the filter specify a slice
         else:
             wrtSlice1 = None
 
         if wrtFilter2 is not None:
-            assert(wrtBlockSize1 is None and wrtBlockSize2 is None) #Cannot specify both wrtFilter and wrtBlockSize
-            wrtSlice2 = _slct.list_to_slice(wrtFilter2) #for now, require the filter specify a slice
+            assert(wrtBlockSize1 is None and wrtBlockSize2 is None)  # Cannot specify both wrtFilter and wrtBlockSize
+            wrtSlice2 = _slct.list_to_slice(wrtFilter2)  # for now, require the filter specify a slice
         else:
             wrtSlice2 = None
 
@@ -896,72 +882,70 @@ class TermForwardSimulator(ForwardSimulator):
             def calc_and_fill(rholabel, elabels, fIndsList, gIndsList, pslc1, pslc2, sumInto):
                 """ Compute and fill result quantities for given arguments """
 
-                                
                 if prMxToFill is not None:
                     polys = evalSubTree.get_p_polys(self, rholabel, elabels, fillComm)
-                    for i,(fInds,gInds) in enumerate(zip(fIndsList,gIndsList)):
-                        prCache = _bulk_eval_compact_polys(polys[i][0], polys[i][1], self.paramvec, (nStrs,) ) # ( nCircuits,)
-                        ps = evalSubTree.final_view( prCache, axis=0) # ( nCircuits,)
+                    for i, (fInds, gInds) in enumerate(zip(fIndsList, gIndsList)):
+                        prCache = _bulk_eval_compact_polys(polys[i][0], polys[i][1], self.paramvec, (nStrs,))  # ( nCircuits,)
+                        ps = evalSubTree.final_view(prCache, axis=0)  # ( nCircuits,)
                         _fas(prMxToFill, [fInds], ps[gInds], add=sumInto)
 
                 nP1 = self.Np if (paramSlice1 is None or paramSlice1.start is None) else _slct.length(paramSlice1)
                 nP2 = self.Np if (paramSlice2 is None or paramSlice2.start is None) else _slct.length(paramSlice2)
-                        
+
                 if deriv1MxToFill is not None:
                     dpolys = evalSubTree.get_dp_polys(self, rholabel, elabels, paramSlice, fillComm)
-                    for i,(fInds,gInds) in enumerate(zip(fIndsList,gIndsList)):
-                        dprCache = _bulk_eval_compact_polys(dpolys[i][0], dpolys[i][1], self.paramvec, (nStrs,nP1)) # ( nCircuits, nDerivCols)
-                        dps1 = evalSubTree.final_view( dprCache, axis=0) # ( nCircuits, nDerivCols)
-                        _fas(deriv1MxToFill, [fInds,pslc1], dps1[gInds], add=sumInto)
-                    
+                    for i, (fInds, gInds) in enumerate(zip(fIndsList, gIndsList)):
+                        dprCache = _bulk_eval_compact_polys(dpolys[i][0], dpolys[i][1], self.paramvec, (nStrs, nP1))  # ( nCircuits, nDerivCols)
+                        dps1 = evalSubTree.final_view(dprCache, axis=0)  # ( nCircuits, nDerivCols)
+                        _fas(deriv1MxToFill, [fInds, pslc1], dps1[gInds], add=sumInto)
+
                 if deriv2MxToFill is not None:
                     if deriv1MxToFill is not None and paramSlice1 == paramSlice2:
                         dps2 = dps1
-                        for i,(fInds,gInds) in enumerate(zip(fIndsList,gIndsList)):
-                            _fas(deriv2MxToFill, [fInds,pslc2], dps2[gInds], add=sumInto)
+                        for i, (fInds, gInds) in enumerate(zip(fIndsList, gIndsList)):
+                            _fas(deriv2MxToFill, [fInds, pslc2], dps2[gInds], add=sumInto)
                     else:
                         dpolys = evalSubTree.get_dp_polys(self, rholabel, elabels, paramSlice, fillComm)
-                        for i,(fInds,gInds) in enumerate(zip(fIndsList,gIndsList)):
-                            dprCache = _bulk_eval_compact_polys(dpolys[i][0], dpolys[i][1], self.paramvec, (nStrs,nP2)) # ( nCircuits, nDerivCols)
-                            dps2 = evalSubTree.final_view( dprCache, axis=0) # ( nCircuits, nDerivCols)
-                            _fas(deriv2MxToFill, [fInds,pslc2], dps2[gInds], add=sumInto)
+                        for i, (fInds, gInds) in enumerate(zip(fIndsList, gIndsList)):
+                            dprCache = _bulk_eval_compact_polys(dpolys[i][0], dpolys[i][1], self.paramvec, (nStrs, nP2))  # ( nCircuits, nDerivCols)
+                            dps2 = evalSubTree.final_view(dprCache, axis=0)  # ( nCircuits, nDerivCols)
+                            _fas(deriv2MxToFill, [fInds, pslc2], dps2[gInds], add=sumInto)
 
                 #Fill cache info
                 hpolys = evalSubTree.get_hp_polys(self, rholabel, elabels, paramSlice1, paramSlice2, fillComm)
-                for i,(fInds,gInds) in enumerate(zip(fIndsList,gIndsList)):
-                    hprCache = _bulk_eval_compact_polys(hpolys[i][0], hpolys[i][1], self.paramvec, (nStrs,nP1,nP2)) # ( nCircuits, nDerivCols1, nDerivCols2)
-                    hps = evalSubTree.final_view( hprCache, axis=0) # ( nCircuits, nDerivCols1, nDerivCols2)
-                    _fas(mxToFill, [fInds,pslc1,pslc2], hps[gInds], add=sumInto)
+                for i, (fInds, gInds) in enumerate(zip(fIndsList, gIndsList)):
+                    hprCache = _bulk_eval_compact_polys(hpolys[i][0], hpolys[i][1], self.paramvec, (nStrs, nP1, nP2))  # ( nCircuits, nDerivCols1, nDerivCols2)
+                    hps = evalSubTree.final_view(hprCache, axis=0)  # ( nCircuits, nDerivCols1, nDerivCols2)
+                    _fas(mxToFill, [fInds, pslc1, pslc2], hps[gInds], add=sumInto)
 
             #Set wrtBlockSize to use available processors if it isn't specified
             if wrtFilter1 is None and wrtFilter2 is None:
-                blkSize1 = wrtBlockSize1 #could be None
-                blkSize2 = wrtBlockSize2 #could be None
+                blkSize1 = wrtBlockSize1  # could be None
+                blkSize2 = wrtBlockSize2  # could be None
                 if (mySubComm is not None) and (mySubComm.Get_size() > 1):
                     comm_blkSize = self.Np / mySubComm.Get_size()
                     blkSize1 = comm_blkSize if (blkSize1 is None) \
-                        else min(comm_blkSize, blkSize1) #override with smaller comm_blkSize
+                        else min(comm_blkSize, blkSize1)  # override with smaller comm_blkSize
                     blkSize2 = comm_blkSize if (blkSize2 is None) \
-                        else min(comm_blkSize, blkSize2) #override with smaller comm_blkSize
+                        else min(comm_blkSize, blkSize2)  # override with smaller comm_blkSize
             else:
-                blkSize1 = blkSize2 = None # wrtFilter1 & wrtFilter2 dictates block
-
+                blkSize1 = blkSize2 = None  # wrtFilter1 & wrtFilter2 dictates block
 
             if blkSize1 is None and blkSize2 is None:
                 #Fill hessian cache info
-                paramSlice1 = wrtSlice1 #specifies which deriv cols calc_and_fill computes
-                paramSlice2 = wrtSlice2 #specifies which deriv cols calc_and_fill computes
+                paramSlice1 = wrtSlice1  # specifies which deriv cols calc_and_fill computes
+                paramSlice2 = wrtSlice2  # specifies which deriv cols calc_and_fill computes
 
                 #Compute all requested derivative columns at once
                 self._fill_result_tuple_collectrho(
                     (prMxToFill, deriv1MxToFill, deriv2MxToFill, mxToFill),
                     evalSubTree, slice(None), slice(None), calc_and_fill)
 
-            else: # Divide columns into blocks of at most blkSize
-                assert(wrtFilter1 is None and wrtFilter2 is None) #cannot specify both wrtFilter and blkSize
+            else:  # Divide columns into blocks of at most blkSize
+                assert(wrtFilter1 is None and wrtFilter2 is None)  # cannot specify both wrtFilter and blkSize
                 nBlks1 = int(_np.ceil(self.Np / blkSize1))
                 nBlks2 = int(_np.ceil(self.Np / blkSize2))
-                  # num blocks required to achieve desired average size == blkSize1 or blkSize2
+                # num blocks required to achieve desired average size == blkSize1 or blkSize2
                 blocks1 = _mpit.slice_up_range(self.Np, nBlks1)
                 blocks2 = _mpit.slice_up_range(self.Np, nBlks2)
 
@@ -974,9 +958,9 @@ class TermForwardSimulator(ForwardSimulator):
 
                 if blk2Comm is not None:
                     _warnings.warn("Note: more CPUs(%d)" % mySubComm.Get_size()
-                       +" than hessian elements(%d)!" % (self.Np**2)
-                       +" [blkSize = {%.1f,%.1f}, nBlks={%d,%d}]" % (blkSize1,blkSize2,nBlks1,nBlks2)) # pragma: no cover
-                fillComm = blk2Comm #comm used by calc_and_fill
+                                   + " than hessian elements(%d)!" % (self.Np**2)
+                                   + " [blkSize = {%.1f,%.1f}, nBlks={%d,%d}]" % (blkSize1, blkSize2, nBlks1, nBlks2))  # pragma: no cover
+                fillComm = blk2Comm  # comm used by calc_and_fill
 
                 for iBlk1 in myBlk1Indices:
                     paramSlice1 = blocks1[iBlk1]
@@ -986,41 +970,40 @@ class TermForwardSimulator(ForwardSimulator):
                         self._fill_result_tuple_collectrho
                         ((prMxToFill, deriv1MxToFill, deriv2MxToFill, mxToFill),
                          evalSubTree, blocks1[iBlk1], blocks2[iBlk2], calc_and_fill)
-    
+
                     #gather column results: gather axis 2 of mxToFill[felInds,blocks1[iBlk1]], dim=(ks,blk1,M)
-                    _mpit.gather_slices(blocks2, blk2Owners, mxToFill,[felInds,blocks1[iBlk1]],
+                    _mpit.gather_slices(blocks2, blk2Owners, mxToFill, [felInds, blocks1[iBlk1]],
                                         2, blk1Comm, gatherMemLimit)
 
                 #gather row results; gather axis 1 of mxToFill[felInds], dim=(ks,M,M)
-                _mpit.gather_slices(blocks1, blk1Owners, mxToFill,[felInds],
+                _mpit.gather_slices(blocks1, blk1Owners, mxToFill, [felInds],
                                     1, mySubComm, gatherMemLimit)
                 if deriv1MxToFill is not None:
-                    _mpit.gather_slices(blocks1, blk1Owners, deriv1MxToFill,[felInds],
+                    _mpit.gather_slices(blocks1, blk1Owners, deriv1MxToFill, [felInds],
                                         1, mySubComm, gatherMemLimit)
                 if deriv2MxToFill is not None:
-                    _mpit.gather_slices(blocks2, blk2Owners, deriv2MxToFill,[felInds],
-                                        1, blk1Comm, gatherMemLimit) 
+                    _mpit.gather_slices(blocks2, blk2Owners, deriv2MxToFill, [felInds],
+                                        1, blk1Comm, gatherMemLimit)
                    #Note: deriv2MxToFill gets computed on every inner loop completion
                    # (to save mem) but isn't gathered until now (but using blk1Comm).
                    # (just as prMxToFill is computed fully on each inner loop *iteration*!)
-            
+
         #collect/gather results
-        subtreeElementIndices = [ t.final_element_indices(evalTree) for t in subtrees]
+        subtreeElementIndices = [t.final_element_indices(evalTree) for t in subtrees]
         _mpit.gather_indices(subtreeElementIndices, subTreeOwners,
-                             mxToFill,[], 0, comm, gatherMemLimit)
+                             mxToFill, [], 0, comm, gatherMemLimit)
         if deriv1MxToFill is not None:
             _mpit.gather_indices(subtreeElementIndices, subTreeOwners,
-                                 deriv1MxToFill,[], 0, comm, gatherMemLimit)
+                                 deriv1MxToFill, [], 0, comm, gatherMemLimit)
         if deriv2MxToFill is not None:
             _mpit.gather_indices(subtreeElementIndices, subTreeOwners,
-                                 deriv2MxToFill,[], 0, comm, gatherMemLimit)
+                                 deriv2MxToFill, [], 0, comm, gatherMemLimit)
         if prMxToFill is not None:
             _mpit.gather_indices(subtreeElementIndices, subTreeOwners,
-                                 prMxToFill,[], 0, comm)
-
+                                 prMxToFill, [], 0, comm)
 
         if clipTo is not None and prMxToFill is not None:
-            _np.clip( prMxToFill, clipTo[0], clipTo[1], out=prMxToFill ) # in-place clip
+            _np.clip(prMxToFill, clipTo[0], clipTo[1], out=prMxToFill)  # in-place clip
 
         #TODO: check if this works
         #if check:

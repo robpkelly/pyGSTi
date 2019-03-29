@@ -2,11 +2,12 @@
 import subprocess
 import matplotlib.pyplot as plt
 
+
 def main():
-    avg = lambda l : sum(l) / len(list(l))
-    nTests   = 10
+    def avg(l): return sum(l) / len(list(l))
+    nTests = 10
     speedups = []
-    nprocs   = []
+    nprocs = []
     for i in range(1, 8):
         processorData = []
         for _ in range(nTests):
@@ -21,5 +22,6 @@ def main():
     plt.xlabel('processors')
     plt.ylabel('speedup')
     plt.show()
+
 
 main()

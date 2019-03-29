@@ -3,6 +3,7 @@ from pygsti.report import Notebook
 
 import time
 
+
 def main():
     nb = Notebook()
     nb.add_markdown('# Pygsti report\n(Created on {})'.format(time.strftime("%B %d, %Y")))
@@ -17,6 +18,7 @@ def main():
         'templates/input.txt',
         'templates/meta.txt'])
     nb.launch_new('AdvancedReport.ipynb')
+
 
 if __name__ == '__main__':
     main()

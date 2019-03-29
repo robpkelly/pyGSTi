@@ -1,14 +1,16 @@
 #!/usr/bin/python
-from __future__       import print_function
+from __future__ import print_function
 from automation_tools import get_branchname, run_pylint, get_author
-from hooksettings     import requires_pylint_pass
-import subprocess, os, sys
+from hooksettings import requires_pylint_pass
+import subprocess
+import os
+import sys
 
 if __name__ == '__main__':
     branchname = get_branchname()
     if branchname in requires_pylint_pass:
         # Compare current pylint score against that in pylint/config.yml
-        passes = run_pylint(['./lint.py', '--score']) 
+        passes = run_pylint(['./lint.py', '--score'])
         sys.exit(int(passes))
 
     '''
@@ -24,7 +26,7 @@ if __name__ == '__main__':
     # git checkout -m <revision> <yourfilepath>
     subprocess.call(['git', 'checkout', '--theirs', SHA, 'hooks/etc/permissions.yml'])
     subprocess.call(['git', 'add', 'hooks/etc/permissions.yml'])
-    subprocess.call(['git', 'commit', '--no-verify', 'hooks/etc/permissions.yml', 
+    subprocess.call(['git', 'commit', '--no-verify', 'hooks/etc/permissions.yml',
                                       '-m', '"Update permissions"'])
 
     # Check branch permissions
@@ -43,6 +45,4 @@ if __name__ == '__main__':
         print('No permissions restrictions on %s' % branchname)
     '''
 
-
     sys.exit(0)
-

@@ -28,5 +28,6 @@ def main():
             for i in range(iterations):
                 native(key)
 
+
 if __name__ == '__main__':
     main()

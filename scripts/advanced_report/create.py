@@ -8,7 +8,7 @@ from pygsti.construction import std1Q_XYI
 gs_target = std1Q_XYI.gs_target
 fiducials = std1Q_XYI.fiducials
 germs = std1Q_XYI.germs
-maxLengths = [1,2,4,8]
+maxLengths = [1, 2, 4, 8]
 listOfExperiments = pygsti.construction.make_lsgst_experiment_list(
     gs_target.gates.keys(), fiducials, fiducials, germs, maxLengths)
 
@@ -17,10 +17,12 @@ gs_datagen1 = gs_target.depolarize(gate_noise=0.1, spam_noise=0.001)
 gs_datagen2 = gs_target.depolarize(gate_noise=0.05, spam_noise=0.01).rotate(rotate=0.01)
 
 ds1 = pygsti.construction.generate_fake_data(gs_datagen1, listOfExperiments, nSamples=1000,
-                                            sampleError="binomial", seed=1234)
+                                             sampleError="binomial", seed=1234)
 ds2 = pygsti.construction.generate_fake_data(gs_datagen2, listOfExperiments, nSamples=1000,
-                                            sampleError="binomial", seed=1234)
-ds3 = ds1.copy_nonstatic(); ds3.add_counts_from_dataset(ds2); ds3.done_adding_data()
+                                             sampleError="binomial", seed=1234)
+ds3 = ds1.copy_nonstatic()
+ds3.add_counts_from_dataset(ds2)
+ds3.done_adding_data()
 
 #Run GST on all three datasets
 gs_target.set_all_parameterizations("TP")

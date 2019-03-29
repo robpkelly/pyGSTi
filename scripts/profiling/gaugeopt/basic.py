@@ -10,8 +10,9 @@ from mpi4py import MPI
 comm = MPI.COMM_WORLD
 #comm = None
 
+
 def main():
-    gs_target  = std2Q_XYICNOT.gs_target
+    gs_target = std2Q_XYICNOT.gs_target
     gs = gs_target.depolarize(gate_noise=0.1, spam_noise=0.001).rotate(0.1)
     gs = gs.kick(0.1, seed=1234)
 
@@ -35,7 +36,7 @@ def main():
             gs, gs_target,
             #method="L-BFGS-B",
             method="auto",
-            itemWeights={'spam' : 0.0001, 'gates':1.0},
+            itemWeights={'spam': 0.0001, 'gates': 1.0},
             spamMetric='frobenius',
             gatesMetric='frobenius',
             cptp_penalty_factor=1.0,
@@ -45,6 +46,7 @@ def main():
         if comm is None or comm.Get_rank() == 0:
             print("Final Diff = ", gs_gaugeopt.frobeniusdist(gs_target, None, 1.0, 0.0001))
             print(gs_gaugeopt.strdiff(gs_target))
+
 
 if __name__ == '__main__':
     main()

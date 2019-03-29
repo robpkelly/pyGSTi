@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 from pygsti.report import Notebook
 
+
 def main():
     nb = Notebook()
     nb.add_markdown('# Replica of tutorial 20, built using Python')
@@ -20,6 +21,7 @@ ws.GateMatrixPlot(pygsti.tools.error_generator(gs1['Gx'], tgt['Gx']), scale=1.5)
     nb.add_code('''ws.PolarEigenvaluePlot([np.linalg.eigvals(gs2['Gx'])],["purple"],scale=1.5)''')
     nb.add_code('''ws.GateEigenvalueTable(gs2, display=('evals','polar'))''')
     nb.launch_new('20Replica.ipynb')
+
 
 if __name__ == '__main__':
     main()

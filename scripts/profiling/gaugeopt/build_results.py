@@ -5,21 +5,21 @@ import pickle
 import pygsti
 from pygsti.construction import std2Q_XYCNOT
 
-gs_target = pygsti.construction.build_gateset( 
-            [4], [('Q0','Q1')],['Gix','Giy','Gxi','Gyi','Gcnot'], 
-            [ "X(pi/2,Q1)", "Y(pi/2,Q1)", "X(pi/2,Q0)", "Y(pi/2,Q0)", "CNOT(Q0,Q1)" ],
-            prepLabels=['rho0'], prepExpressions=["0"],
-            effectLabels=['E0','E1','E2'], effectExpressions=["0","1","2"], 
-            spamdefs={'upup': ('rho0','E0'), 'updn': ('rho0','E1'),
-                      'dnup': ('rho0','E2'), 'dndn': ('rho0','remainder') }, basis="pp")
+gs_target = pygsti.construction.build_gateset(
+    [4], [('Q0', 'Q1')], ['Gix', 'Giy', 'Gxi', 'Gyi', 'Gcnot'],
+    ["X(pi/2,Q1)", "Y(pi/2,Q1)", "X(pi/2,Q0)", "Y(pi/2,Q0)", "CNOT(Q0,Q1)"],
+    prepLabels=['rho0'], prepExpressions=["0"],
+    effectLabels=['E0', 'E1', 'E2'], effectExpressions=["0", "1", "2"],
+    spamdefs={'upup': ('rho0', 'E0'), 'updn': ('rho0', 'E1'),
+              'dnup': ('rho0', 'E2'), 'dndn': ('rho0', 'remainder')}, basis="pp")
 
-gs_targetB = pygsti.construction.build_gateset( 
-            [4], [('Q0','Q1')],['Gix','Giy','Gxi','Gyi','Gcnot'], 
-            [ "I(Q0):X(pi/2,Q1)", "I(Q0):Y(pi/2,Q1)", "X(pi/2,Q0):I(Q1)", "Y(pi/2,Q0):I(Q1)", "CNOT(Q0,Q1)" ],
-            prepLabels=['rho0'], prepExpressions=["0"], 
-            effectLabels=['E0','E1','E2'], effectExpressions=["0","1","2"], 
-            spamdefs={'upup': ('rho0','E0'), 'updn': ('rho0','E1'),
-                      'dnup': ('rho0','E2'), 'dndn': ('rho0','remainder') }, basis="pp")
+gs_targetB = pygsti.construction.build_gateset(
+    [4], [('Q0', 'Q1')], ['Gix', 'Giy', 'Gxi', 'Gyi', 'Gcnot'],
+    ["I(Q0):X(pi/2,Q1)", "I(Q0):Y(pi/2,Q1)", "X(pi/2,Q0):I(Q1)", "Y(pi/2,Q0):I(Q1)", "CNOT(Q0,Q1)"],
+    prepLabels=['rho0'], prepExpressions=["0"],
+    effectLabels=['E0', 'E1', 'E2'], effectExpressions=["0", "1", "2"],
+    spamdefs={'upup': ('rho0', 'E0'), 'updn': ('rho0', 'E1'),
+              'dnup': ('rho0', 'E2'), 'dndn': ('rho0', 'remainder')}, basis="pp")
 
 # If you're lucky and your gateset is one of pyGSTi's "standard" gate sets, you can just import it.
 gs_targetC = std2Q_XYCNOT.gs_target
@@ -37,16 +37,16 @@ assert(abs(gs_target.frobeniusdist(gs_targetC)) < 1e-6)
 #If you know the fiducial strings you can create a list manually.  Note
 # that in general there can be different "preparation" and "measurement"
 # (or "effect") fiducials.
-prep_fiducials = pygsti.construction.gatestring_list( [ (), ('Gix',), ('Giy',), ('Gix','Gix'), 
-('Gxi',), ('Gxi','Gix'), ('Gxi','Giy'), ('Gxi','Gix','Gix'), 
-('Gyi',), ('Gyi','Gix'), ('Gyi','Giy'), ('Gyi','Gix','Gix'), 
-('Gxi','Gxi'), ('Gxi','Gxi','Gix'), ('Gxi','Gxi','Giy'), ('Gxi','Gxi','Gix','Gix') ] )
+prep_fiducials = pygsti.construction.gatestring_list([(), ('Gix',), ('Giy',), ('Gix', 'Gix'),
+                                                      ('Gxi',), ('Gxi', 'Gix'), ('Gxi', 'Giy'), ('Gxi', 'Gix', 'Gix'),
+                                                      ('Gyi',), ('Gyi', 'Gix'), ('Gyi', 'Giy'), ('Gyi', 'Gix', 'Gix'),
+                                                      ('Gxi', 'Gxi'), ('Gxi', 'Gxi', 'Gix'), ('Gxi', 'Gxi', 'Giy'), ('Gxi', 'Gxi', 'Gix', 'Gix')])
 
-effect_fiducials = pygsti.construction.gatestring_list( [(), ('Gix',), ('Giy',), 
- ('Gix','Gix'), ('Gxi',),
- ('Gyi',), ('Gxi','Gxi'),
- ('Gxi','Gix'), ('Gxi','Giy'),
- ('Gyi','Gix'), ('Gyi','Giy')] )
+effect_fiducials = pygsti.construction.gatestring_list([(), ('Gix',), ('Giy',),
+                                                        ('Gix', 'Gix'), ('Gxi',),
+                                                        ('Gyi',), ('Gxi', 'Gxi'),
+                                                        ('Gxi', 'Gix'), ('Gxi', 'Giy'),
+                                                        ('Gyi', 'Gix'), ('Gyi', 'Giy')])
 
 #Or, if you're lucky, you can just import them
 prep_fiducialsB = std2Q_XYCNOT.prepStrs
@@ -63,7 +63,7 @@ specs = pygsti.construction.build_spam_specs(
     prepStrs=prep_fiducials,
     effectStrs=effect_fiducials,
     prep_labels=gs_target.get_prep_labels(),
-    effect_labels=gs_target.get_effect_labels() )
+    effect_labels=gs_target.get_effect_labels())
 
 #Alternatively, if you're lucky, you can grab the specs directly:
 specsB = std2Q_XYCNOT.specs
@@ -77,13 +77,13 @@ assert(specs[0] == specsB[0])
 # notebook, we create some smaller lists of germs manually and import the
 # full 71-germ list from std2Q_XYCNOT
 germs4 = pygsti.construction.gatestring_list(
-    [ ('Gix',), ('Giy',), ('Gxi',), ('Gyi',) ] )
-germs11 = pygsti.construction.gatestring_list( [ ('Gix',), ('Giy',), ('Gxi',), ('Gyi',), ('Gcnot',), ('Gxi','Gyi'), ('Gix','Giy'), ('Gix','Gcnot'), ('Gxi','Gcnot'), ('Giy','Gcnot'), ('Gyi','Gcnot') ] )
+    [('Gix',), ('Giy',), ('Gxi',), ('Gyi',)])
+germs11 = pygsti.construction.gatestring_list([('Gix',), ('Giy',), ('Gxi',), ('Gyi',), ('Gcnot',), ('Gxi', 'Gyi'), ('Gix', 'Giy'), ('Gix', 'Gcnot'), ('Gxi', 'Gcnot'), ('Giy', 'Gcnot'), ('Gyi', 'Gcnot')])
 
 germs71 = std2Q_XYCNOT.germs
 
 #A list of maximum lengths for each GST iteration
-maxLengths = [1,2,4]
+maxLengths = [1, 2, 4]
 
 #Create a list of GST experiments for this gateset, with
 #the specified fiducials, germs, and maximum lengths.  We use
@@ -112,9 +112,9 @@ results = pygsti.do_long_sequence_gst(ds, gs_target, prep_fiducials, effect_fidu
                                     verbosity=3 )
 '''
 results = pygsti.do_long_sequence_gst(ds, gs_target, prep_fiducials, effect_fiducials, germs4,
-                                    maxLengths, gaugeOptParams=None,
-                                    advancedOptions={ 'depolarizeStart' : 0.1 }, memLimit=3*(1024)**3,
-                                    verbosity=3 )
+                                      maxLengths, gaugeOptParams=None,
+                                      advancedOptions={'depolarizeStart': 0.1}, memLimit=3 * (1024)**3,
+                                      verbosity=3)
 end = time.time()
 print("Total time=%f hours" % ((end - start) / 3600.0))
 

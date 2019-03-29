@@ -10,14 +10,14 @@ import pygsti.construction as pc
 
 
 def main():
-    gates = ['Gi','Gx','Gy']
-    fiducials = pc.gatestring_list([ (), ('Gx',), ('Gy',), ('Gx','Gx'), ('Gx','Gx','Gx'), ('Gy','Gy','Gy') ]) # fiducials for 1Q MUB
-    germs = pc.gatestring_list( [('Gx',), ('Gy',), ('Gi',), ('Gx', 'Gy',),
-                                 ('Gx', 'Gy', 'Gi',), ('Gx', 'Gi', 'Gy',),('Gx', 'Gi', 'Gi',), ('Gy', 'Gi', 'Gi',),
-                                 ('Gx', 'Gx', 'Gi', 'Gy',), ('Gx', 'Gy', 'Gy', 'Gi',),
-                                 ('Gx', 'Gx', 'Gy', 'Gx', 'Gy', 'Gy',)] )
-    maxLengths = [1,2,4,8,16,32,64,128,256]    
-    lsgst_lists = pc.make_lsgst_experiment_list(gates, fiducials, fiducials, germs, maxLengths) 
+    gates = ['Gi', 'Gx', 'Gy']
+    fiducials = pc.gatestring_list([(), ('Gx',), ('Gy',), ('Gx', 'Gx'), ('Gx', 'Gx', 'Gx'), ('Gy', 'Gy', 'Gy')])  # fiducials for 1Q MUB
+    germs = pc.gatestring_list([('Gx',), ('Gy',), ('Gi',), ('Gx', 'Gy',),
+                                ('Gx', 'Gy', 'Gi',), ('Gx', 'Gi', 'Gy',), ('Gx', 'Gi', 'Gi',), ('Gy', 'Gi', 'Gi',),
+                                ('Gx', 'Gx', 'Gi', 'Gy',), ('Gx', 'Gy', 'Gy', 'Gi',),
+                                ('Gx', 'Gx', 'Gy', 'Gx', 'Gy', 'Gy',)])
+    maxLengths = [1, 2, 4, 8, 16, 32, 64, 128, 256]
+    lsgst_lists = pc.make_lsgst_experiment_list(gates, fiducials, fiducials, germs, maxLengths)
     lsgst_tuple = tuple(lsgst_lists)
     iterations = 1000
     timeDict = dict()
@@ -36,6 +36,7 @@ def main():
         timeDict['hash_gatestring_list'] / iterations))
     print('UUID digest takes {} seconds on average'.format(
         timeDict['digest_uuid'] / iterations))
+
 
 if __name__ == '__main__':
     main()
