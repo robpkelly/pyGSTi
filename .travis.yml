@@ -61,15 +61,14 @@ stages:
   - name: deploy # only run deployment for master & develop branches
     if: branch IN (master, develop)
 
-jobs:
-  include:
+matrix:
+  allow_failures:
     - stage: lint
       python:
         - 3.7
-        - 2.7
       script:
-        - python -m flake8 packages/pygsti
-        - python -m flake8 test/test_packages
+        - python -m flake8
+  include:
     - stage: deploy
       python: 3.7
       env: NOSETESTS=none NOSEOPTS=$NOSEOPTS_DEFAULT
