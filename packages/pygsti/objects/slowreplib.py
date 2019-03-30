@@ -10,6 +10,7 @@ import sys
 import numpy as _np
 import scipy.sparse as _sps
 import itertools as _itertools
+import functools as _functools
 
 from ..tools import mpitools as _mpit
 from ..tools import slicetools as _slct
@@ -935,7 +936,7 @@ class PolyRep(dict):
         -------
         None
         """
-        coeffs = {self._int_to_vinds(i): v for k, v in self.items()}
+        coeffs = {self._int_to_vinds(k): v for k, v in self.items()}
         if max_num_vars is not None: self.max_num_vars = max_num_vars
         if max_order is not None: self.max_order = max_order
         int_coeffs = {self._vinds_to_int(k): v for k, v in coeffs.items()}
@@ -1115,7 +1116,6 @@ class PolyRep(dict):
         None
         """
         # assume a scalar that can multiply values
-        newpoly = self.copy()
         for k in self:
             self[k] *= x
 
@@ -1191,7 +1191,7 @@ class PolyRep(dict):
     def __pow__(self, n):
         ret = PolyRep({0: 1.0}, self.max_order, self.max_num_vars)
         cur = self
-        for i in range(int(np.floor(np.log2(n))) + 1):
+        for i in range(int(_np.floor(_np.log2(n))) + 1):
             rem = n % 2  # gets least significant bit (i-th) of n
             if rem == 1: ret *= cur  # add current power of x (2^i) if needed
             cur = cur * cur  # current power *= 2
@@ -1289,11 +1289,6 @@ def DM_compute_dpr_cache(calc, rholabel, elabels, evalTree, wrtSlice, comm, scra
     pCache = _np.empty((len(evalTree), len(elabels)), 'd')
     dpr_cache = _np.zeros((len(evalTree), len(elabels), nDerivCols), 'd')
 
-    #Get (extension-type) representation objects
-    rhorep = calc.sos.get_prep(rholabel).torep('prep')
-    ereps = [calc.sos.get_effect(el).torep('effect') for el in elabels]
-    operation_lookup = {lbl: i for i, lbl in enumerate(evalTree.opLabels)}  # operation labels -> ints for faster lookup
-    operationreps = {i: calc.sos.get_operation(lbl).torep() for lbl, i in operation_lookup.items()}
     cacheSize = evalTree.cache_size()
 
     # create rho_cache (or use scratch)
@@ -1430,7 +1425,6 @@ def _prs_as_polys(calc, rholabel, elabels, circuit, comm=None, memLimit=None, fa
     prps = [None] * len(elabels)  # an array in "bulk" mode? or Polynomial in "symbolic" mode?
     for order in range(calc.max_order + 1):
         #print("DB: pr_as_poly order=",order)
-        db_npartitions = 0
         for p in _lt.partition_into(order, len(circuit) + 2):  # +2 for SPAM bookends
             #factor_lists = [ calc.sos.get_operation(glbl).get_order_terms(pi) for glbl,pi in zip(circuit,p) ]
             factor_lists = [rho_term_reps[p[0]]] + \

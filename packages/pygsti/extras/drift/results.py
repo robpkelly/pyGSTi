@@ -233,7 +233,7 @@ class DriftResults(object):
 
         if store:
             assert(freqInds is None), "Only allowed to store the full spectra set!"
-            self.spectra[tup] = specta
+            self.spectra[tup] = spectra
 
         return _copy.deepcopy(spectra)
 
@@ -486,7 +486,7 @@ class DriftResults(object):
         """
         This function hasn't been written yet!.
         """
-        return p
+        raise NotImplementedError("This function hasn't been implemented.")
 
         # Todo : currently the AuxDict is not stored.
 
@@ -788,7 +788,6 @@ class DriftResults(object):
         #     _plt.plot(times,self.timeseries[sequence][entity][outcome_index]/self.number_of_counts,'.',label=label)
 
         entityInd = self.entitieslist.index(entity)
-        outcomeInd = self.outcomes.index(outcome)
 
         for opstr in circuitlist:
             gstrInd = self.indexforCircuit[opstr]

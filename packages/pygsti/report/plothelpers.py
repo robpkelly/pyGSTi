@@ -378,7 +378,7 @@ def _eformat(f, prec):
 
 
 def _num_non_nan(array):
-    ixs = _np.where(_np.isnan(_np.array(array).flatten()) == False)[0]
+    ixs = _np.where(_np.isnan(_np.array(array).flatten()) is False)[0]
     return int(len(ixs))
 
 
@@ -399,7 +399,7 @@ def _compute_num_boxes_dof(subMxs, sumUp, element_dof):
         reshape_subMxs = _np.array(_np.reshape(subMxs, (s[0] * s[1], s[2], s[3])))
 
         #Get all the boxes where the entries are not all NaN
-        non_all_NaN = reshape_subMxs[_np.where(_np.array([_np.isnan(k).all() for k in reshape_subMxs]) == False)]
+        non_all_NaN = reshape_subMxs[_np.where(_np.array([_np.isnan(k).all() for k in reshape_subMxs]) is False)]
         s = _np.shape(non_all_NaN)
         dof_each_box = [_num_non_nan(k) * element_dof for k in non_all_NaN]
 
@@ -656,7 +656,7 @@ def drift_oneoverpvalue_matrices(gsplaq, driftresults):
         and effect-fiducial pair.
 
     """
-    pvalues_and_strings_dict = {}
+    # pvalues_and_strings_dict = {}
     #for opstr in driftresults.circuitlist:
     #    pvalues_and_strings_dict[opstr] = driftresults.get_maxpower_pvalue(sequence=opstr)
 
@@ -700,7 +700,7 @@ def drift_maxpower_matrices(gsplaq, driftresults):
         base circuit is sandwiched between the each prep-fiducial and effect-fiducial pair.
 
     """
-    maxpowers_and_strings_dict = {}
+    # maxpowers_and_strings_dict = {}
     #for opstr in driftresults.circuitlist:
     #    maxpowers_and_strings_dict[opstr] = driftresults.get_maxpower(sequence=opstr)
 
@@ -794,7 +794,7 @@ def ratedNsigma(dataset, model, gss, objective, Np=None, wildcard=None, returnAl
         fitQty = 2 * (logL_upperbound - logl)  # twoDeltaLogL
         if(logL_upperbound < logl):
             if _np.isclose(logL_upperbound, logl):
-                logl = logl_upperbound
+                logl = logL_upperbound
                 fitQty = 0.0
             else:
                 raise ValueError("LogL upper bound = %g but logl = %g!!" % (logL_upperbound, logl))

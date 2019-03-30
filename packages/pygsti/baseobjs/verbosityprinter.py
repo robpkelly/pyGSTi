@@ -148,8 +148,8 @@ class VerbosityPrinter(object):
         warnings - bool, optional:
           don't print warnings
         '''
-        if comm != None:
-            if comm.Get_rank() != 0 and filename == None:  # A filename will override the default comm behavior
+        if comm is not None:
+            if comm.Get_rank() != 0 and filename is None:  # A filename will override the default comm behavior
                 filename = self._get_comm_file(comm.Get_rank())
         self.verbosity = verbosity
         self.filename = filename

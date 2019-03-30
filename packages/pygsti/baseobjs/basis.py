@@ -20,7 +20,6 @@ from numpy.linalg import inv as _inv
 import numpy as _np
 import scipy.sparse as _sps
 import scipy.sparse.linalg as _spsl
-import copy as _copy
 
 import math
 
@@ -479,7 +478,6 @@ class LazyBasis(Basis):
 
     def __str__(self):
         if self._labels is None and self.dim > 64:
-            labelstr = "(no labels computed yet)"
             return '{} (dim={}), {} elements of shape {} (not computed yet)'.format(
                 self.longname, self.dim, self.size, self.elshape)
         else:
@@ -823,7 +821,7 @@ class TensorProdBasis(LazyBasis):
         sparse = all([c.sparse for c in self.component_bases])
         assert(all([c.real == real for c in self.component_bases])), "Inconsistent `real` value among component bases!"
         assert(all([c.sparse == sparse for c in self.component_bases])), "Inconsistent sparsity among component bases!"
-        assert(sparse == False), "Sparse matrices are not supported within TensorProductBasis objects yet"
+        assert(sparse is False), "Sparse matrices are not supported within TensorProductBasis objects yet"
 
         dim = int(_np.product([c.dim for c in self.component_bases]))
         assert(all([c.dim == c.elsize for c in self.component_bases])), \

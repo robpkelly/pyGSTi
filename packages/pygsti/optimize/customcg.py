@@ -218,10 +218,10 @@ def _max_within_bracket(g, s1, g1, s2, g2, s3, g3):
                 s3, g3 = s4, g4
         else:
             if g4 > g2:  # Drop x3 (move to x2), move x2 to x4
-                s3, g3 = s2, g2
+                s3, g3 = s2, g2  # noqa: F841
                 s2, g2 = s4, g4
             else:  # Drop x1 (move to x4)
-                s1, g1 = s4, g4
+                s1, g1 = s4, g4  # noqa: F841
     return s2
 
 

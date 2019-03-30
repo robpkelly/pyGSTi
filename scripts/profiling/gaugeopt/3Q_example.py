@@ -39,7 +39,7 @@ print(gs_go.frobeniusdist(gs_target))
 
 # In[ ]:
 
-pickle.dump(results, open("3qbit_results.pkl", "wb"))
+pickle.dump(results, open("3qbit_results.pkl", "wb"))  # noqa: F821
 
 
 # In[ ]:

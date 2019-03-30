@@ -45,7 +45,6 @@ class DataSet_KeyValIterator(object):
         oliData = self.dataset.oliData
         timeData = self.dataset.timeData
         repData = self.dataset.repData
-        cntcache = self.dataset.cnt_cache
         auxInfo = dataset.auxInfo
 
         def getcache(opstr):
@@ -77,7 +76,6 @@ class DataSet_ValIterator(object):
         oliData = self.dataset.oliData
         timeData = self.dataset.timeData
         repData = self.dataset.repData
-        cntcache = self.dataset.cnt_cache
         auxInfo = dataset.auxInfo
 
         def getcache(opstr):
@@ -640,7 +638,7 @@ class DataSet(object):
         return len(self.cirIndex)
 
     def __contains__(self, circuit):
-        return self.has_key(circuit)
+        return self.has_key(circuit)  # noqa: W601
 
     def __hash__(self):
         if self.uuid is not None:
@@ -1386,7 +1384,7 @@ class DataSet(object):
             new_gstr = processor_fn(opstr)
             if new_gstr is None:
                 to_delete.append(indx)
-            elif new_gstr not in new_cirIndex or aggregate == False:
+            elif new_gstr not in new_cirIndex or aggregate is False:
                 assert(isinstance(new_gstr, _cir.Circuit)), "`processor_fn` must return a Circuit!"
                 new_cirIndex[new_gstr] = indx
             else:  # aggregate data from indx --> new_cirIndex[new_gstr]
@@ -1417,7 +1415,7 @@ class DataSet(object):
             new_gstr = processor_fn(opstr)
             if new_gstr is None:
                 continue
-            elif new_gstr not in auxInfo or aggregate == False:
+            elif new_gstr not in auxInfo or aggregate is False:
                 auxInfo[new_gstr] = self.auxInfo[opstr]
             else:  # "aggregate" auxinfo by merging dictionaries
                 #FUTURE: better merging - do something for key collisions?
@@ -1449,7 +1447,7 @@ class DataSet(object):
             if not isinstance(opstr, _cir.Circuit):
                 opstr = _cir.Circuit(opstr)
 
-            if self.has_key(opstr):
+            if opstr in self:
                 gstr_indices.append(self.cirIndex[opstr])
                 if opstr in self.auxInfo:
                     auxkeys_to_remove.append(opstr)

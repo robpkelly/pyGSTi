@@ -62,8 +62,8 @@ stages:
   - name: deploy # only run deployment for master & develop branches
     if: branch IN (master, develop)
 
-jobs:
-  include:
+matrix:
+  allow_failures:
     - stage: lint
       script:
         - python -m flake8
@@ -113,6 +113,7 @@ jobs:
       python: 2.7
       env: NOSETESTS="mpi" NOSEOPTS=$NOSEOPTS_ALL
 
+  include:
     - stage: deploy
       python: 3.7
       env: NOSETESTS=none NOSEOPTS=$NOSEOPTS_DEFAULT

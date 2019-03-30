@@ -187,7 +187,7 @@ class Circuit(object):
             #print("DB: Layer labels = ",layer_labels_objs)
 
         #Parse stringrep if needed
-        if stringrep is not None and (layer_labels is None or check == True):
+        if stringrep is not None and (layer_labels is None or check is True):
             cparser = _CircuitParser()
             cparser.lookup = None  # lookup - functionality removed as it wasn't used
             chk, chk_labels = cparser.parse(stringrep)  # tuple of Labels
@@ -394,7 +394,7 @@ class Circuit(object):
         else: s = "{}"
         if mylines is not None:
             s += "@" + mylines  # add line labels
-        if ntimes > 1 and expand == False:
+        if ntimes > 1 and expand is False:
             reppedCircuitLbl = self.as_label(nreps=ntimes)
             return Circuit((reppedCircuitLbl,), self.line_labels, None, not self._static, s, check=False)
         else:
@@ -1185,7 +1185,6 @@ class Circuit(object):
         Circuit
         """
         parallel_lbls = []
-        cur_components = []
         first_free = {'*': 0}
         for lbl in self.tup:
             if can_break_labels:  # then process label components individually
@@ -1285,47 +1284,6 @@ class Circuit(object):
         if len(iLayersToRemove) > 0:
             #print("Removing layers: ",iLayersToRemove)
             self.delete_layers(iLayersToRemove)
-
-
-## DEPRECATED FUNCTIONS?
-
-    #def replace_gate_with_circuit(self, circuit, q, j): #used in this module only TODO
-    #    """
-    #    Replace a gate with a circuit. This gate is replaced with an idle and
-    #    the circuit is inserted between this layer and the following circuit layer.
-    #    As such there is no restrictions on the lines on which this circuit can act non-trivially.
-    #    `circuit` need not be a circuit over all the qubits in this circuit, but it must satisfying
-    #    the requirements of the `insert_circuit()` method.
-    #
-    #    Parameters
-    #    ----------
-    #    circuit : A Circuit object
-    #        The circuit to be inserted in place of the gate.
-    #
-    #    q : int
-    #        The qubit on which the gate is to be replaced.
-    #
-    #    j : int
-    #        The layer index (depth) of the gate to be replaced.
-    #
-    #    Returns
-    #    -------
-    #    None
-    #    """
-    #    assert(not self._static),"Cannot edit a read-only circuit!"
-    #    gate_to_replace = self.line_items[q][j]
-    #
-    #    # Replace the gate with identity
-    #    gate_qubits = self.line_labels if (gate_to_replace.qubits is None) \
-    #                  else gate_to_replace.qubits
-    #    for q in gate_qubits:
-    #        self.line_items[self.line_labels.index(q)][j] = _Label(self.identity,q)
-    #
-    #    # Inserts the circuit after the layer this gate was in.
-    #    self.insert_circuit(circuit,j+1)
-    #
-    #    self._tup_dirty = self._str_dirty = True
-
 
     def insert_layer(self, circuit_layer, j):
         """
@@ -2591,7 +2549,7 @@ class Circuit(object):
                 quil += 'PRAGMA PRESERVE_BLOCK\nPRAGMA END_PRESERVE_BLOCK\n'
 
         # Add in a measurement at the end.
-        if readout_conversion == None:
+        if readout_conversion is None:
             for q in self.line_labels:
                 #            quil += "MEASURE {0} [{1}]\n".format(str(qubit_conversion[q]),str(qubit_conversion[q]))
                 quil += "MEASURE {0} ro[{1}]\n".format(str(qubit_conversion[q]), str(qubit_conversion[q]))

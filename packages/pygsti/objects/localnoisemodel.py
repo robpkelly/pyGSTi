@@ -413,7 +413,7 @@ class LocalNoiseModel(_ImplicitOpModel):
                     if on_construction_error in ('warn', 'ignore'): continue
                     else: raise e
 
-            if independent_gates == False:
+            if independent_gates is False:
                 if ensure_composed_gates and not isinstance(gate, Composed):
                     #Make a single ComposedDenseOp *here*, which is used
                     # in all the embeddings for different target qubits
@@ -530,7 +530,7 @@ class SimpleCompLayerLizard(_ImplicitLayerLizard):
         #   'Gi' not in self.op_blks['layers'])):
         #    return self.op_blks['layers'][_Lbl('globalIdle')]
 
-        if len(components) == 1 and bHasGlobalIdle == False:
+        if len(components) == 1 and bHasGlobalIdle is False:
             return self.get_layer_component_operation(components[0], dense)
         else:
             gblIdle = [self.op_blks['layers'][_Lbl('globalIdle')]] if bHasGlobalIdle else []

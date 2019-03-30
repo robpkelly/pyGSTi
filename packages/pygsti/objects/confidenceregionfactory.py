@@ -218,13 +218,12 @@ class ConfidenceRegionFactory(object):
 
         assert(cptp_penalty_factor == 0), 'cptp_penalty_factor unsupported in hessian computation'
         assert(spam_penalty_factor == 0), 'spam_penalty_factor unsupported in hessian computation'
-        assert(useFreqWt == False), 'useFreqWeightedChiSq unsupported in hessian computation'
+        assert(useFreqWt is False), 'useFreqWeightedChiSq unsupported in hessian computation'
 
         #Expand operation label aliases used in DataSet lookups
         ds_circuit_list = _tools.find_replace_tuple_list(
             circuit_list, aliases)
 
-        nCircuits = len(circuit_list)
         nModelParams = model.num_nongauge_params()
         nDataParams = dataset.get_degrees_of_freedom(ds_circuit_list)
         #number of independent parameters in dataset (max. model # of params)
@@ -336,7 +335,7 @@ class ConfidenceRegionFactory(object):
         for i in orderInds[self.nGaugeParams:]:
             invEvals[i] = 1.0 / evals[i]
 
-          #re-construct "inverted" quadratic form
+        #re-construct "inverted" quadratic form
         inv_projected_hessian = _np.diag(invEvals)
         inv_projected_hessian = _np.dot(U, _np.dot(inv_projected_hessian, Udag))
 

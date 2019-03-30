@@ -8,6 +8,7 @@ from __future__ import division, print_function, absolute_import, unicode_litera
 
 import numpy as _np
 import collections as _collections
+import itertools as _itertools
 from scipy.sparse.csgraph import floyd_warshall as _fw
 
 
@@ -429,7 +430,6 @@ class QubitGraph(object):
         # Find the shortest path between node1 and node2
         # (following the chain in self._predecessors until we arrive at node1)
         shortestpath = [node2]
-        current_node = node2
         current_index = j
 
         while current_index != i:

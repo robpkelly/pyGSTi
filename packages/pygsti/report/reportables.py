@@ -1,3 +1,21 @@
+"""Functions which compute named quantities for Models and Datasets.
+
+Named quantities as well as their confidence-region error bars are
+ computed by the functions in this module. These quantities are
+ used primarily in reports, so we refer to these quantities as
+ "reportables".
+"""
+from __future__ import division, print_function, absolute_import, unicode_literals
+#*****************************************************************
+#    pyGSTi 0.9:  Copyright 2015 Sandia Corporation
+#    This Software is released under the GPL license detailed
+#    in the file "license.txt" in the top-level pyGSTi directory
+#*****************************************************************
+
+import warnings as _warnings
+import scipy.linalg as _spl
+import numpy as _np
+
 from ..objects import modelfunction as _modf
 from ..objects.reportableqty import ReportableQty as _ReportableQty
 from ..baseobjs import Label as _Lbl
@@ -5,23 +23,6 @@ from ..baseobjs import DirectSumBasis as _DirectSumBasis
 from ..baseobjs import Basis as _Basis
 from .. import algorithms as _alg
 from .. import tools as _tools
-import warnings as _warnings
-import scipy.linalg as _spl
-import numpy as _np
-"""Functions which compute named quantities for Models and Datasets."""
-from __future__ import division, print_function, absolute_import, unicode_literals
-#*****************************************************************
-#    pyGSTi 0.9:  Copyright 2015 Sandia Corporation
-#    This Software is released under the GPL license detailed
-#    in the file "license.txt" in the top-level pyGSTi directory
-#*****************************************************************
-"""
-Named quantities as well as their confidence-region error bars are
- computed by the functions in this module. These quantities are
- used primarily in reports, so we refer to these quantities as
- "reportables".
-"""
-
 
 try:
     import sys as _sys
@@ -811,7 +812,6 @@ Eigenvalue_nonunitary_diamondnorm = _modf.opsfn_factory(eigenvalue_nonunitary_di
 
 def avg_gate_infidelity(A, B, mxBasis):
     """ Returns the average gate infidelity between A and B, where B is the "target" operation."""
-    d = _np.sqrt(A.shape[0])
     return _tools.average_gate_infidelity(A, B, mxBasis)
 
 
@@ -991,7 +991,6 @@ def robust_logGTi_and_projections(modelA, modelB, syntheticIdleStrs):
     mxBasis = modelB.basis  # target model is more likely to have a valid basis
     Id = _np.identity(modelA.dim, 'd')
     opLabels = [gl for gl, gate in modelB.operations.items() if not _np.allclose(gate, Id)]
-    idLabels = [gl for gl, gate in modelB.operations.items() if _np.allclose(gate, Id)]
     nOperations = len(opLabels)
 
     error_superops = []

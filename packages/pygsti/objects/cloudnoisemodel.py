@@ -386,7 +386,7 @@ class CloudNoiseModel(_ImplicitOpModel):
         if availability is None:
             availability = {}
 
-        if independent_clouds != True:
+        if independent_clouds is not True:
             raise NotImplementedError("Non-independent noise clounds are not supported yet!")
 
         #Set members
@@ -561,6 +561,7 @@ class CloudNoiseModel(_ImplicitOpModel):
             prep_factors = []
             povm_factors = []
 
+            from ..construction import basis_build_vector as _basis_build_vector
             v0 = _basis_build_vector("0", basis1Q)
             v1 = _basis_build_vector("1", basis1Q)
 
@@ -578,23 +579,24 @@ class CloudNoiseModel(_ImplicitOpModel):
                         ('0', _sv.StaticSPAMVec(v0)),
                         ('1', _sv.StaticSPAMVec(v1))])), povmtyp, basis1Q))
 
-            if prepNoise is not None:
-                if isinstance(prepNoise, tuple):  # use as (seed, strength)
-                    seed, strength = prepNoise
-                    rndm = _np.random.RandomState(seed)
-                    depolAmts = _np.abs(rndm.random_sample(nQubits) * strength)
-                else:
-                    depolAmts = prepNoise[0:nQubits]
-                for amt, vec in zip(depolAmts, prep_factors): vec.depolarize(amt)
+            # # Noise logic from construction.nqnoiseconstruction.build_nqnoise_model
+            # if prepNoise is not None:
+            #     if isinstance(prepNoise, tuple):  # use as (seed, strength)
+            #         seed, strength = prepNoise
+            #         rndm = _np.random.RandomState(seed)
+            #         depolAmts = _np.abs(rndm.random_sample(nQubits) * strength)
+            #     else:
+            #         depolAmts = prepNoise[0:nQubits]
+            #     for amt, vec in zip(depolAmts, prep_factors): vec.depolarize(amt)
 
-            if povmNoise is not None:
-                if isinstance(povmNoise, tuple):  # use as (seed, strength)
-                    seed, strength = povmNoise
-                    rndm = _np.random.RandomState(seed)
-                    depolAmts = _np.abs(rndm.random_sample(nQubits) * strength)
-                else:
-                    depolAmts = povmNoise[0:nQubits]
-                for amt, povm in zip(depolAmts, povm_factors): povm.depolarize(amt)
+            # if povmNoise is not None:
+            #     if isinstance(povmNoise, tuple):  # use as (seed, strength)
+            #         seed, strength = povmNoise
+            #         rndm = _np.random.RandomState(seed)
+            #         depolAmts = _np.abs(rndm.random_sample(nQubits) * strength)
+            #     else:
+            #         depolAmts = povmNoise[0:nQubits]
+            #     for amt, povm in zip(depolAmts, povm_factors): povm.depolarize(amt)
 
             self.prep_blks['layers'][_Lbl('rho0')] = _sv.TensorProdSPAMVec('prep', prep_factors)
             self.povm_blks['layers'][_Lbl('Mdefault')] = _povm.TensorProdPOVM(povm_factors)
@@ -873,7 +875,6 @@ def _build_nqn_cloud_noise(target_qubit_inds, qubitGraph, weight_maxhops_tuples,
         Composed = _op.ComposedErrorgen
         Embedded = _op.EmbeddedErrorgen
     else: raise ValueError("Invalid `errcomp_type`: %s" % errcomp_type)
-    StaticDenseOp = _get_Static_factory(sim_type, parameterization)  # always a *gate*
     Lindblad = _get_Lindblad_factory(sim_type, parameterization, errcomp_type)
     #constructs a gate or errorgen based on value of errcomp_type
 

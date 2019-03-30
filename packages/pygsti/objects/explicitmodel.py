@@ -400,8 +400,6 @@ class ExplicitOpModel(_mdl.OpModel):
         #                                 'static unitary'))
 
         #Update dim and evolution type so that setting converted elements works correctly
-        orig_dim = self.dim
-        orig_evotype = self._evotype
         baseType = typ  # the default - only updated if a lindblad param type
 
         if typ == 'static unitary':
@@ -1209,11 +1207,9 @@ class ExplicitOpModel(_mdl.OpModel):
                                          self.instruments.items()):
             yield (lbl, obj)
 
-
 #TODO: how to handle these given possibility of different parameterizations...
 #  -- maybe only allow these methods to be called when using a "full" parameterization?
 #  -- or perhaps better to *move* them to the parameterization class
-
 
     def depolarize(self, op_noise=None, spam_noise=None, max_op_noise=None,
                    max_spam_noise=None, seed=None):
@@ -1259,7 +1255,6 @@ class ExplicitOpModel(_mdl.OpModel):
             the depolarized Model
         """
         newModel = self.copy()  # start by just copying the current model
-        opDim = self.get_dimension()
         rndm = _np.random.RandomState(seed)
 
         if max_op_noise is not None:
@@ -1295,7 +1290,6 @@ class ExplicitOpModel(_mdl.OpModel):
 
         elif spam_noise is not None:
             #Apply the same depolarization to each gate
-            D = _np.diag([1] + [1 - spam_noise] * (opDim - 1))
             for lbl in self.preps:
                 newModel.preps[lbl].depolarize(spam_noise)
 

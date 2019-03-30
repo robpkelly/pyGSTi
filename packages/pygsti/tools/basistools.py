@@ -1,4 +1,3 @@
-from . import matrixtools as _mt
 """ Utility functions for working with Basis objects """
 from __future__ import division, print_function, absolute_import, unicode_literals
 #*****************************************************************
@@ -26,8 +25,9 @@ from ..baseobjs.basis import basis_matrices, basis_longname, basis_element_label
 def is_sparse_basis(nameOrBasis):
     if isinstance(nameOrBasis, Basis):
         return nameOrBasis.sparse
-    else:  # assume everything else is not sparse
-          # (could test for a sparse matrix list in the FUTURE)
+    else:
+        # assume everything else is not sparse
+        # (could test for a sparse matrix list in the FUTURE)
         return False
 
 
@@ -59,13 +59,13 @@ def change_basis(mx, from_basis, to_basis):
     from_is_basis = isinstance(from_basis, Basis)
     to_is_basis = isinstance(to_basis, Basis)
     dim = mx.shape[0]
-    if from_is_basis == False and to_is_basis == False:
+    if from_is_basis is False and to_is_basis is False:
         #Case1: no Basis objects, so just construct builtin bases based on `mx` dim
         if from_basis == to_basis: return mx.copy()  # (shortcut)
         from_basis = BuiltinBasis(from_basis, dim, sparse=False)
         to_basis = BuiltinBasis(to_basis, dim, sparse=False)
 
-    elif from_is_basis == True and to_is_basis == True:
+    elif from_is_basis is True and to_is_basis is True:
         #Case2: both Basis objects.  Just make sure they agree :)
         assert(from_basis.dim == to_basis.dim == dim), "Dimension mismatch: %d,%d,%d" % (from_basis.dim, to_basis.dim, dim)
     else:
@@ -406,6 +406,8 @@ gmvec_to_stdmx = partial(vec_to_stdmx, basis='gm')
 ppvec_to_stdmx = partial(vec_to_stdmx, basis='pp')
 qtvec_to_stdmx = partial(vec_to_stdmx, basis='qt')
 stdvec_to_stdmx = partial(vec_to_stdmx, basis='std')
+
+from . import matrixtools as _mt
 
 
 def stdmx_to_vec(m, basis):

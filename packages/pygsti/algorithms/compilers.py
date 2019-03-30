@@ -177,7 +177,7 @@ def compile_clifford(s, p, pspec=None, subsetQs=None, iterations=20, algorithm='
             assert(len(subsetQs) == n), "The subset of qubits to compile for is the wrong size for this CLifford!!"
             qubit_labels = subsetQs
     else:
-        assert(subsetQs == None), "subsetQs can only be specified if `pspec` is not None!"
+        assert(subsetQs is None), "subsetQs can only be specified if `pspec` is not None!"
         qubit_labels = list(range(n))
 
     # Create a circuit that implements a Clifford with symplectic matrix s. This is the core
@@ -321,7 +321,7 @@ def compile_symplectic(s, pspec=None, subsetQs=None, iterations=20, algorithms=[
         else:
             assert(len(subsetQs) == n), "The subset of qubits to compile `s` for is the wrong size for this symplectic matrix!"
     else:
-        assert(subsetQs == None), "subsetQs can only be specified if `pspec` is not None!"
+        assert(subsetQs is None), "subsetQs can only be specified if `pspec` is not None!"
 
     all_algorithms = ['BGGE', 'ROGGE', 'iAGvGE']  # Future: ['AGvGE','AGvPMH','iAGvPMH']
     assert(set(algorithms).issubset(set(all_algorithms))), "One or more algorithms names are invalid!"
@@ -393,7 +393,7 @@ def compile_symplectic(s, pspec=None, subsetQs=None, iterations=20, algorithms=[
             c_cost = costfunction(c, pspec)
             if c_cost < bestcost:
                 circuit = c.copy()
-                cost = bestcost
+                bestcost = c_cost
     else: circuit = circuits[0]
 
     # If we want to Pauli randomize the circuits, we insert a random compiled Pauli layer between every layer.
@@ -1240,7 +1240,9 @@ def compile_cnot_circuit_using_BGE_algorithm(s, pspec, subsetQs=None, clname=Non
         qubitlabels = list(subsetQs)
     else:
         qubitlabels = pspec.qubit_labels
-    assert(len(qubitlabels) == _np.shape(s)[0] // 2), "The CNOT circuit is over the wrong number of qubits!"
+
+    n = _np.shape(s)[0] // 2
+    assert(len(qubitlabels) == n), "The CNOT circuit is over the wrong number of qubits!"
     # We can just use this more general function for this task.
     sout, instructions, success = submatrix_gaussian_elimination_using_cnots(s, 'row', 'UL', qubitlabels)
     assert(_np.array_equal(sout, _np.identity(2 * n, int))), "Algorithm has failed! Perhaps the input wasn't a CNOT circuit."
@@ -1248,7 +1250,7 @@ def compile_cnot_circuit_using_BGE_algorithm(s, pspec, subsetQs=None, clname=Non
     instructions.reverse()
     circuit = _Circuit(gatesring=instructions, line_labels=qubitlabels).parallelize()
     if check:
-        s_implemented, p_implemented = _symp.symplectic_rep_of_clifford_circuit(cnot_circuit)
+        s_implemented, p_implemented = _symp.symplectic_rep_of_clifford_circuit(circuit)
         assert(_np.array_equal(s_implemented, s)), "Algorithm has failed! Perhaps the input wasn't a CNOT circuit."
     return circuit
 
@@ -1463,7 +1465,7 @@ def compile_cnot_circuit_using_OCAGE_algorithm(s, pspec, qubitorder, subsetQs=No
                     dis[qqgraphindex] = _np.inf
 
             # It should always be possible to map s[i,i] -> 1, so if we haven't managed to something has gone wrong.
-            assert(found == True), 'CNOT compilation algorithm failed! Perhaps the input was invalid.'
+            assert(found is True), 'CNOT compilation algorithm failed! Perhaps the input was invalid.'
 
         # This is the list of all the qubits that qubit i will need to interact with this round. (except where
         # we resort to SWAP-like methods).
@@ -1670,7 +1672,7 @@ def compile_cnot_circuit_using_OiCAGE_algorithm(s, pspec, qubitorder, subsetQs=N
                     dis[qq_rQsgraph_index] = _np.inf
 
             # It should always be possible to map s[i,i] -> 1, so if we haven't managed to something has gone wrong.
-            assert(found == True), 'CNOT compilation algorithm failed! Perhaps the input was invalid.'
+            assert(found is True), 'CNOT compilation algorithm failed! Perhaps the input was invalid.'
 
         # This is the list of all the qubits that qubit i will need to interact with this round.
         remaining_Qs_for_round = _copy.copy(remaining_qubits)
@@ -1679,10 +1681,6 @@ def compile_cnot_circuit_using_OiCAGE_algorithm(s, pspec, qubitorder, subsetQs=N
 
         # Go through and remove every qubit from this list.
         while len(remaining_Qs_for_round) > 0:
-
-            # complement of `remaining_qubits` = "eliminated qubits"
-            eliminated_qubits = set(allqubits) - set(remaining_qubits)
-
             # Find the most distant qubit still to be dealt with in this round
             mostdistantQ_rQsgraph_index = _np.argmax(distances_to_qubit_q)
             mostdistantQ = rQsgraph_llist[mostdistantQ_rQsgraph_index]
@@ -1706,7 +1704,7 @@ def compile_cnot_circuit_using_OiCAGE_algorithm(s, pspec, qubitorder, subsetQs=N
 
             # We must set out[i,mostdistantQ_index] = 0. There is no need to do anything here if that alreadys holds.
             if sout[qindex, mostdistantQ_index] == 1:
-               # Find the shortest path out from i to mostdistantQ_index, and do CNOTs to make that all 1s.
+                # Find the shortest path out from i to mostdistantQ_index, and do CNOTs to make that all 1s.
                 for nextqubit, currentqubit in reversed(rQsgraph.shortest_path_edges(mostdistantQ, q)):
                     nextqubitindex = allqubits.index(nextqubit)
                     if sout[qindex, nextqubitindex] == 0:

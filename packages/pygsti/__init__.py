@@ -3,19 +3,6 @@
 #    This Software is released under the GPL license detailed
 #    in the file "license.txt" in the top-level pyGSTi directory
 #*****************************************************************
-from .tools.compattools import _numpy14einsumfix
-from .drivers import *
-from .tools import *
-from .objects import Basis
-from .construction.gateconstruction import *  # *_qubit_gate fns
-from .algorithms.grammatrix import *
-from .algorithms.contract import *
-from .algorithms.gaugeopt import *
-from .algorithms.core import *
-from . import report as rpt
-from . import objects as obj
-from . import construction as cst
-from . import algorithms as alg
 """ A Python implementation of LinearOperator Set Tomography """
 
 #Import the most important/useful routines of each module/sub-package
@@ -38,6 +25,21 @@ if val not in ("0", "False", "FALSE", "false", "No", "no", "NO"):
                       "  `export PYGSTI_BACKCOMPAT_WARNING=0` from the command line or\n"
                       "  `import os; os.environ['PYGSTI_BACKCOMPAT_WARNING'] = '0'` in a script or\n"
                       "     notebook *before* importing pygsti and the the madness will stop."))
+
+from . import algorithms as alg
+from . import construction as cst
+from . import objects as obj
+from . import report as rpt
+
+from .algorithms.core import *
+from .algorithms.gaugeopt import *
+from .algorithms.contract import *
+from .algorithms.grammatrix import *
+from .construction.gateconstruction import *  # *_qubit_gate fns
+from .objects import Basis
+from .tools import *
+from .drivers import *
+from .tools.compattools import _numpy14einsumfix
 
 
 #NUMPY BUG FIX (imported from tools)

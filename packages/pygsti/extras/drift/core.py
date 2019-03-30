@@ -15,6 +15,7 @@ from . import statistics as _stats
 from ... import objects as _obj
 from ...tools import hypothesis as _hyp
 from ...tools import compattools as _compat
+from ...construction import filter_dataset as _filter_dataset
 
 import numpy as _np
 import warnings as _warnings
@@ -140,7 +141,7 @@ def do_drift_characterization(ds, significance=0.05, marginalize='auto', transfo
         if verbosity > 0:
             print(" - Formatting the data...", end='')
         # Format the input, and record it inside the results object.
-        results = format_data(ds, marginalize=marginalize, enforceConstNumTimes=enforceConstNumTimes, name=name)
+        results = format_data(ds, marginalize=marginalize, enforceConstNumTimes=enforceConstNumTimes, name=name, verbosity=verbosity)
         if verbosity > 0: print("complete.")
 
     if verbosity > 0: print(" - Calculating power spectra...", end='')
@@ -176,7 +177,7 @@ def do_drift_characterization(ds, significance=0.05, marginalize='auto', transfo
     return results
 
 
-def format_data(ds, marginalize='auto', groupoutcomes=None, enforceConstNumTimes=False, name=None):
+def format_data(ds, marginalize='auto', groupoutcomes=None, enforceConstNumTimes=False, name=None, verbosity=1):
     """"
     Formats time-series data, in the form of DataSet containing time-series data, into the format
     required by a DriftResults object, writes this into an empty DriftResults object, and returns
@@ -212,7 +213,7 @@ def format_data(ds, marginalize='auto', groupoutcomes=None, enforceConstNumTimes
         spectral analysis of this formatted time-series data.
     """
     if groupoutcomes is not None:
-        assert(not marginalize == True), "Cannot marginalize the data *and* format the data according to a `groupoutcomes` dictionary!"
+        assert(marginalize is not True), "Cannot marginalize the data *and* format the data according to a `groupoutcomes` dictionary!"
 
     # Initialize an empty results object, with the name written in.
     results = _dresults.DriftResults(name=name)
@@ -265,7 +266,7 @@ def format_data(ds, marginalize='auto', groupoutcomes=None, enforceConstNumTimes
         else:
             marginalize = False
 
-    assert(marginalize == True or marginalize == False)
+    assert(marginalize is True or marginalize is False)
 
     if marginalize:
         if verbosity > 0:
@@ -283,7 +284,7 @@ def format_data(ds, marginalize='auto', groupoutcomes=None, enforceConstNumTimes
         timeseries = {}
         for e in range(num_entities):
             timeseries[e] = {}
-            tempdata = pygsti.construction.filter_dataset(ds, sectors_to_keep=i)
+            tempdata = _filter_dataset(ds, sectors_to_keep=i)
             for s in range(num_sequences):
                 timeseries[e][s] = {}
                 for o in range(2):
@@ -350,7 +351,7 @@ def calculate_power_spectra(results, transform='DCT', frequenciesInHz='auto'):
         # Regardless of the input, we write over that and use the DCT frequencies
         frequenciesInHz = _sig.frequencies_from_timestep(results.meantimestepGlobal, results.maxnumber_of_timesteps)
         # Todo : explain
-        assert(results.constNumTimes == True)
+        assert(results.constNumTimes is True)
         # We can store the modes and spectra in an array, because fixed-T must be enforced.
         modes = _np.zeros(shape, float)
         for qInd in range(results.number_of_entities):
@@ -377,7 +378,7 @@ def calculate_power_spectra(results, transform='DCT', frequenciesInHz='auto'):
                 for oInd, out in enumerate(results.outcomes):
                     x = results.timeseries[qInd][sInd][out]
                     t = results.timestamps[qInd][sInd]
-                    specta[qInd, sInd, oInd, :] = _sig.LSP(t, x, frequenciesInHz, counts=results.number_of_counts)
+                    spectra[qInd, sInd, oInd, :] = _sig.LSP(t, x, frequenciesInHz, counts=results.number_of_counts)
 
     results.add_spectra(frequenciesInHz, spectra, transform, modes)
 

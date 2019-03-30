@@ -1,7 +1,3 @@
-import numbers as _numbers
-import numpy as _np
-from ..objects.reportableqty import ReportableQty as _ReportableQty
-from .formatter import Formatter as _Formatter
 """ Functions for generating report tables in different formats """
 from __future__ import division, print_function, absolute_import, unicode_literals
 
@@ -11,6 +7,11 @@ from __future__ import division, print_function, absolute_import, unicode_litera
 #    in the file "license.txt" in the top-level pyGSTi directory
 #*****************************************************************
 
+import numbers as _numbers
+import numpy as _np
+
+from ..objects.reportableqty import ReportableQty as _ReportableQty
+from .formatter import Formatter as _Formatter
 
 from .convert import converter
 html = converter('html')  # Retrieve low-level formatters

@@ -73,7 +73,7 @@ The primary goals of the pyGSTi project are to:
 """
 
 setup(name='pyGSTi',
-      version=__version__,
+      version=__version__,  # noqa: F821
       description='A python implementation of Gate Set Tomography',
       long_description=descriptionTxt,
       author='Erik Nielsen, Kenneth Rudinger, Timothy Proctor, John Gamble, Robin Blume-Kohout',

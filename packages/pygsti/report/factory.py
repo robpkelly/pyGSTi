@@ -1468,11 +1468,8 @@ def create_nqnoise_report(results, filename, title="auto",
     ds = switchBd.ds
     eff_ds = switchBd.eff_ds
     modvi_ds = switchBd.modvi_ds
-    prepStrs = switchBd.prepStrs
-    effectStrs = switchBd.effectStrs
     germs = switchBd.germs
     strs = switchBd.strs
-    cliffcomp = switchBd.clifford_compilation
     A = None  # no brevity restriction: always display; for "Summary"- & "Help"-tab figs
 
     #Brevity key:
@@ -1487,7 +1484,6 @@ def create_nqnoise_report(results, filename, title="auto",
 
     gsFinal = switchBd.gsFinal
     gsGIRep = switchBd.gsGIRep
-    gsEP = switchBd.gsGIRepEP
     cri_base = switchBd.cri if (confidenceLevel is not None) else None
     criGIRep_base = switchBd.criGIRep if (confidenceLevel is not None) else None
     def cri(l): return cri_base if ci_brevity <= l else None
@@ -1996,7 +1992,7 @@ def create_report_notebook(results, filename, title="auto",
     printer.log("Report Notebook created as %s" % filename)
 
     if auto_open:
-        port = "auto" if auto_open == True else int(auto_open)
+        port = "auto" if auto_open is True else int(auto_open)
         nb.launch(filename, port=port)
     else:
         nb.save_to(filename)

@@ -22,7 +22,7 @@ def main():
     gs = load_3q()
 
     with timed_block('Basic gauge opt (3Q)'):
-        gs_gaugeopt = gaugeopt_to_target(gs, gs_target,
+        gs_gaugeopt = gaugeopt_to_target(gs, gs_target,  # noqa: F841
                                          itemWeights={'spam': 0.0001, 'gates': 1.0},
                                          spamMetric='frobenius',
                                          gatesMetric='frobenius')

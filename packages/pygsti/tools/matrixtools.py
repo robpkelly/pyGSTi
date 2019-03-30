@@ -1,5 +1,3 @@
-import itertools as _ittls
-from scipy.linalg import sqrtm as _sqrtm
 """ Matrix related utility functions """
 from __future__ import division, print_function, absolute_import, unicode_literals
 #*****************************************************************
@@ -651,15 +649,15 @@ def unvec(vector_in):
     """
     dim = int(_np.sqrt(len(vector_in)))
     return _np.transpose(_np.array(list(
-        zip(*[_ittls.chain(vector_in,
-                                   _ittls.repeat(None, dim - 1))] * dim))))
+        zip(*[_itertools.chain(vector_in,
+                                   _itertools.repeat(None, dim - 1))] * dim))))
 
 
 def norm1(matr):
     """
     Returns the 1 norm of a matrix
     """
-    return float(_np.real(_np.trace(_sqrtm(_np.dot(matr.conj().T, matr)))))
+    return float(_np.real(_np.trace(_spl.sqrtm(_np.dot(matr.conj().T, matr)))))
 
 
 def random_hermitian(dimension):
@@ -1394,7 +1392,6 @@ def expop_multiply_prep(op, tol=EXPM_DEFAULT_TOL):
     if len(op.shape) != 2 or op.shape[0] != op.shape[1]:
         raise ValueError('expected op to have equal input and output dimensions')
 
-    n = op.shape[0]
     n0 = 1  # always act exp(op) on *single* vectors
     mu = 0  # _spsl._expm_multiply._trace(A) / float(n)
     #ASSUME op is *traceless*

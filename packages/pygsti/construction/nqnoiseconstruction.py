@@ -661,8 +661,6 @@ def test_amped_polys_for_syntheticidle(fidpairs, idleStr, model, prepLbl=None, e
     assert(model._sim_type == "termorder" and model._sim_args[0] == '1'), \
         '`model` must use "termorder:1" simulation type!'
 
-    printer = _VerbosityPrinter.build_printer(verbosity)
-
     if prepLbl is None:
         prepLbl = model._shlp.get_default_prep_lbl()
     if effectLbls is None:
@@ -675,7 +673,6 @@ def test_amped_polys_for_syntheticidle(fidpairs, idleStr, model, prepLbl=None, e
     nEffectLbls = len(effectLbls)
     nRows = len(fidpairs) * nEffectLbls  # number of jacobian rows
     J = _np.empty((nRows, Np), 'complex')
-    Jrank = 0
 
     for i, (prepFid, measFid) in enumerate(fidpairs):
         gstr_L0 = prepFid + measFid            # should be a Circuit
@@ -862,7 +859,6 @@ def find_amped_polys_for_clifford_syntheticidle(qubit_filter, core_filter, trueI
     #  action.
 
     nQubits = len(qubit_filter)
-    nCore = len(core_filter)
 
     #Tile idle_fidpairs for maxWt onto nQubits
     # (similar to tile_idle_fidpairs(...) but don't need to convert to circuits?)
@@ -2107,7 +2103,7 @@ def create_cloudnoise_sequences(nQubits, maxLengths, singleQfiducials,
                 for germ, (germ_order, access_cache) in germ_dict.items()])
         else: allLsExist = False
 
-        if len(germ_dict) == 0 or allLsExist == False:
+        if len(germ_dict) == 0 or not allLsExist:
 
             if len(germ_dict) == 0:  # we need to do the germ selection using a set of candidate germs
                 candidate_counts = {4: 'all upto', 5: 10, 6: 10}  # should be an arg? HARDCODED!
@@ -2461,7 +2457,7 @@ def get_kcoverage_template(n, k, verbosity=0):
                             shift_soln_found = True
                             break
 
-                if shift_soln_found == False:
+                if not shift_soln_found:
                     # no shifting can be performed to place v into an open row,
                     # so we just create a new row equal to desired_row on existing_cols.
                     # How do we choose the non-(existing & last) colums? For now, just
@@ -2633,8 +2629,8 @@ def gatename_fidpair_list_to_fidpairs(gatename_fidpair_list):
             prepnames, measnames = gatenames
             prepStr.extend([_Lbl(name, iQubit) for name in prepnames])
             measStr.extend([_Lbl(name, iQubit) for name in measnames])
-        fidpair = (pygsti.obj.Circuit(prepStr, num_lines=nQubits),
-                   pygsti.obj.Circuit(measStr, num_lines=nQubits))
+        fidpair = (_objs.Circuit(prepStr, num_lines=nQubits),
+                   _objs.Circuit(measStr, num_lines=nQubits))
         fidpairs.append(fidpair)
     return fidpairs
 
