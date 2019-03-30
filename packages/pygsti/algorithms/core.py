@@ -417,7 +417,7 @@ def _constructA(effectStrs, mdl):
 
     dim = mdl.get_dimension()
     A = _np.empty((n, dim))
-    st = _np.empty(dim, 'd')
+    # st = _np.empty(dim, 'd')
 
     basis_st = _np.zeros((dim, 1), 'd')
     eoff = 0
@@ -441,7 +441,7 @@ def _constructB(prepStrs, mdl):
     n = len(prepStrs)
     dim = mdl.get_dimension()
     B = _np.empty((dim, n))
-    st = _np.empty(dim, 'd')
+    # st = _np.empty(dim, 'd')
 
     #Create POVM of vector units
     basis_Es = []
@@ -1150,7 +1150,7 @@ def do_mc2gst(dataset, startModel, circuitsToUse,
     z = _np.zeros(KM, 'd')  # for deriv below
 
     if evaltree_cache and 'cntVecMx' in evaltree_cache \
-       and useFreqWeightedChiSq == False:  # b/c we don't cache fweights
+       and useFreqWeightedChiSq is False:  # b/c we don't cache fweights
         cntVecMx = evaltree_cache['cntVecMx']
         N = evaltree_cache['totalCntVec']
         fweights = None
@@ -1415,8 +1415,8 @@ def do_mc2gst(dataset, startModel, circuitsToUse,
 
             nClipped = len((_np.logical_or(probs < minProbClipForWeighting,
                                            probs > (1 - minProbClipForWeighting))).nonzero()[0])
-            printer.log("MC2-JAC: jac in (%g,%g)\n" % (_np.min(jac), _np.max(jac)) +
-                        "         pr in (%g,%g)\n" % (_np.min(probs), _np.max(probs))
+            printer.log("MC2-JAC: jac in (%g,%g)\n" % (_np.min(jac), _np.max(jac))
+                        + "         pr in (%g,%g)\n" % (_np.min(probs), _np.max(probs))
                         + "         dpr in (%g,%g)\n" % (_np.min(dprobs), _np.max(dprobs))
                         + "         prefactor in (%g,%g)\n" % (_np.min(dPr_prefactor), _np.max(dPr_prefactor))
                         + "         mdl in (%g,%g)\n" % (_np.min(vectorGS), _np.max(vectorGS))
@@ -1469,7 +1469,6 @@ def do_mc2gst(dataset, startModel, circuitsToUse,
     tm = _time.time()
 
     if printer.verbosity > 0:
-        nCircuits = len(circuitsToUse)
         nDataParams = dataset.get_degrees_of_freedom(dsCircuitsToUse)  # number of independent parameters
         # in dataset (max. model # of params)
 
@@ -2645,7 +2644,6 @@ def _do_mlgst_base(dataset, startModel, circuitsToUse,
 
     if printer.verbosity > 0:
         if _np.isfinite(deltaLogL):
-            nCircuits = len(circuitsToUse)
             nDataParams = dataset.get_degrees_of_freedom(dsCircuitsToUse)  # number of independent parameters
             # in dataset (max. model # of params)
 
@@ -3120,7 +3118,7 @@ def _spam_penalty_jac_fill(spamPenaltyVecGradToFill, mdl, prefactor, opBasis):
 
             #get sgn(EMx) == d(|EMx|_Tr)/d(EMx) in std basis
             EMx = _tools.vec_to_stdmx(effectvec, opBasis)
-            dmDim = EMx.shape[0]
+            # dmDim = EMx.shape[0]
             assert(_np.linalg.norm(EMx - EMx.T.conjugate()) < 1e-4), \
                 "EMx should be Hermitian!"
 

@@ -54,10 +54,10 @@ def _remove_from_matrix(inputArr, columns, rows, outputType=_np.matrix):
     return outputType([
         [inputArr[row_num][col_num]
             for col_num in range(len(inputArr[row_num]))
-            if not col_num in columns]
+            if col_num not in columns]
 
         for row_num in range(len(inputArr))
-        if not row_num in rows])
+        if row_num not in rows])
 
 
 def to_qutrit_space(inputMat):
@@ -141,7 +141,6 @@ def make_qutrit_model(errorScale, Xangle=_np.pi / 2, Yangle=_np.pi / 2,
                      [0, 0, 0]]))
 
     identity3 = arrType(_np.identity(3))
-    identity3final = change_basis(_np.reshape(identity3, (9, 1)), "std", basis)
 
     E0 = arrType(_np.diag([1, 0, 0]))
     E1 = arrType(_np.diag([0, 1, 0]))

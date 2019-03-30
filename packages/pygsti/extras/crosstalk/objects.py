@@ -63,10 +63,10 @@ class CrosstalkResults(object):
         fig, (ax1, ax2) = _plt.subplots(1, 2, figsize=(sum(self.settings) + self.number_of_regions + 6, self.number_of_regions + 4))
         fig.subplots_adjust(wspace=2, hspace=2)
 
-        if self.name is not None:
-            title = 'Crosstalk matrices for dataset ' + self.name + '. Confidence level ' + str(self.confidence)
-        else:
-            title = 'Crosstalk matrices for dataset. Confidence level ' + str(self.confidence)
+        # if self.name is not None:
+        #     title = 'Crosstalk matrices for dataset ' + self.name + '. Confidence level ' + str(self.confidence)
+        # else:
+        #     title = 'Crosstalk matrices for dataset. Confidence level ' + str(self.confidence)
 
         # common arguments to imshow
         kwargs = dict(
@@ -139,7 +139,7 @@ class CrosstalkResults(object):
             import matplotlib.pyplot as _plt
         except ImportError:
             raise ValueError("plot_crosstalk_dag(...) requires you to install matplotlib")
- #      fig = _plt.figure(figsize=(sum(self.settings)+2,6), facecolor='white')
+        # fig = _plt.figure(figsize=(sum(self.settings)+2,6), facecolor='white')
         fig = _plt.figure(facecolor='white')
         ax = fig.add_subplot(1, 1, 1)
 
@@ -190,7 +190,7 @@ class CrosstalkResults(object):
             else:
                 _nx.draw_networkx_edges(G, pos, edgelist=[edge], width=2, alpha=1, edge_color='b', ax=ax)
 
-         # insert plot title
+        # insert plot title
         _plt.title(title, fontsize=17, y=3)
 
         # expand axis limits to make sure node labels are visible
@@ -221,7 +221,7 @@ class CrosstalkResults(object):
             import matplotlib.pyplot as _plt
         except ImportError:
             raise ValueError("plot_crosstalk_graph(...) requires you to install matplotlib")
- #       fig = _plt.figure(figsize=(sum(self.settings)+2,6), facecolor='white')
+        # fig = _plt.figure(figsize=(sum(self.settings)+2,6), facecolor='white')
         fig = _plt.figure(facecolor='white')
         ax = fig.add_subplot(1, 1, 1)
 

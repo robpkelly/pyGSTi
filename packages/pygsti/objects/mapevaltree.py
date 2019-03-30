@@ -347,7 +347,7 @@ class MapEvalTree(EvalTree):
 
         #Permute to get final list:
         nFinal = self.num_final_strings()
-        if self.original_index_lookup is not None and permute == True:
+        if self.original_index_lookup is not None and permute is True:
             finalCircuits = [None] * nFinal
             for iorig, icur in self.original_index_lookup.items():
                 if iorig < nFinal: finalCircuits[iorig] = circuits[icur]
@@ -622,7 +622,6 @@ class MapEvalTree(EvalTree):
             subTree.num_final_strs = numFinal
             subTree[:] = [None] * len(parentIndices)
 
-            mapParentIndxToSubTreeIndx = {k: ik for ik, k in enumerate(parentIndices)}
             curCacheSize = 0
             subTreeCacheIndices = {}
 

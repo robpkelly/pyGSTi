@@ -430,7 +430,7 @@ class LinearOperator(_modelmember.ModelMember):
 
     @dirty.setter
     def dirty(self, value):
-        if value == True: self._cachedrep = None  # clear cached rep
+        if value is True: self._cachedrep = None  # clear cached rep
         _modelmember.ModelMember.dirty.fset(self, value)  # call base class setter
 
     def __getstate__(self):
@@ -747,7 +747,8 @@ class LinearOperator(_modelmember.ModelMember):
         else:
             try:
                 dim = len(M)
-                d2 = len(M[0])  # pylint : disable=unused-variable
+                len(M[0])
+                # XXX this is an abuse of exception handling
             except:
                 raise ValueError("%s doesn't look like a 2D array/list" % M)
             if any([len(row) != dim for row in M]):
@@ -2207,9 +2208,9 @@ class LindbladOp(LinearOperator):
         # FUTURE: warn if there is a sparsity mismatch btwn basis and postfactor?
         self.sparse_expm = sparse_expm
         if unitaryPostfactor is not None:
-            if self.sparse_expm == False and _sps.issparse(unitaryPostfactor):
+            if self.sparse_expm is False and _sps.issparse(unitaryPostfactor):
                 unitaryPostfactor = unitaryPostfactor.toarray()  # sparse -> dense
-            elif self.sparse_expm == True and not _sps.issparse(unitaryPostfactor):
+            elif self.sparse_expm is True and not _sps.issparse(unitaryPostfactor):
                 unitaryPostfactor = _sps.csr_matrix(_np.asarray(unitaryPostfactor))  # dense -> sparse
 
         evotype = self.errorgen._evotype
@@ -3228,7 +3229,7 @@ class ComposedOp(LinearOperator):
         """
         return self.factorops
 
-    def append(*factorops_to_add):
+    def append(self, *factorops_to_add):
         """
         Add one or more factors to this operator.
 
@@ -3244,9 +3245,9 @@ class ComposedOp(LinearOperator):
         """
         self.factorops.extend(factorops_to_add)
         if self.parent:  # need to alert parent that *number* (not just value)
-            parent._mark_for_rebuild(self)  # of our params may have changed
+            self.parent._mark_for_rebuild(self)  # of our params may have changed
 
-    def remove(*factorop_indices):
+    def remove(self, *factorop_indices):
         """
         Remove one or more factors from this operator.
 
@@ -3262,7 +3263,7 @@ class ComposedOp(LinearOperator):
         for i in sorted(factorop_indices, reverse=True):
             del self.factorops[i]
         if self.parent:  # need to alert parent that *number* (not just value)
-            parent._mark_for_rebuild(self)  # of our params may have changed
+            self.parent._mark_for_rebuild(self)  # of our params may have changed
 
     def copy(self, parent=None):
         """
@@ -3873,8 +3874,9 @@ class EmbeddedOp(LinearOperator):
                 op_b1 = self._decomp_op_index(op_i)  # op_b? are lists of dm basis indices, one index per
                 op_b2 = self._decomp_op_index(op_j)  # tensor product component that the gate operates on (2 components for a 2-qubit gate)
 
-                for b_noop in _itertools.product(*self.basisInds_noop):  # loop over all state configurations we don't operate on
-                                                                   # - so really a loop over diagonal dm elements
+                for b_noop in _itertools.product(*self.basisInds_noop):
+                    # loop over all state configurations we don't operate on
+                    # - so really a loop over diagonal dm elements
                     b_out = self._merge_op_and_noop_bases(op_b1, b_noop)  # using same b_noop for in and out says we're acting
                     b_in = self._merge_op_and_noop_bases(op_b2, b_noop)  # as the identity on the no-op state space
                     out_vec_index = _np.dot(self.multipliers, tuple(b_out))  # index of output dm basis el within vec(tensor block basis)
@@ -4455,10 +4457,9 @@ class ComposedErrorgen(LinearOperator):
             # and avoid duplicating basis elements
             final_basisLbls = {}
             for lbl, basisEl in bdict.items():
-                lblsEqual = bool(lbl == existingLbl)
                 for existing_lbl, existing_basisEl in basisdict.values():
                     if _mt.safenorm(basisEl - existing_basisEl) < 1e-6:
-                        final_basisLbls[lbl] = existingLbl
+                        final_basisLbls[lbl] = existing_lbl
                         break
                 else:  # no existing basis element found - need a new element
                     if lbl in basisdict:  # then can't keep current label
@@ -4569,7 +4570,7 @@ class ComposedErrorgen(LinearOperator):
         """
         return self.factors
 
-    def append(*factors_to_add):
+    def append(self, *factors_to_add):
         """
         Add one or more factors to this operator.
 
@@ -4585,9 +4586,9 @@ class ComposedErrorgen(LinearOperator):
         """
         self.factors.extend(factors_to_add)
         if self.parent:  # need to alert parent that *number* (not just value)
-            parent._mark_for_rebuild(self)  # of our params may have changed
+            self.parent._mark_for_rebuild(self)  # of our params may have changed
 
-    def remove(*factor_indices):
+    def remove(self, *factor_indices):
         """
         Remove one or more factors from this operator.
 
@@ -4603,7 +4604,7 @@ class ComposedErrorgen(LinearOperator):
         for i in sorted(factor_indices, reverse=True):
             del self.factors[i]
         if self.parent:  # need to alert parent that *number* (not just value)
-            parent._mark_for_rebuild(self)  # of our params may have changed
+            self.parent._mark_for_rebuild(self)  # of our params may have changed
 
     def copy(self, parent=None):
         """
@@ -5329,7 +5330,6 @@ class LindbladErrorgen(LinearOperator):
     def _init_terms(self, Ltermdict, basisdict, hamBasisLabels, otherBasisLabels, termtype):
 
         d2 = self.dim
-        d = int(round(_np.sqrt(d2)))
         tt = termtype  # shorthand - used to construct RankOneTerm objects below,
         # as we expect `basisdict` will contain *dense* basis
         # matrices (maybe change in FUTURE?)
@@ -5766,7 +5766,7 @@ class LindbladErrorgen(LinearOperator):
             # Derivative of exponent wrt other param; shape == [d2,d2,2,bs-1]
             #  except "depol" & "reldepol" cases, when shape == [d2,d2,bs]
             if self.param_mode == "depol":  # all coeffs same & == param^2
-                diag_params, affine_params = otherParams[0:1], otherParams[1:]
+                diag_params = otherParams[0:1]
                 dOdp = _np.empty((d2, d2, bsO), 'complex')
                 #dOdp[:,:,0]  = _np.einsum('alj->lj', self.otherGens[0]) * 2*diag_params[0] # single diagonal term
                 #dOdp[:,:,1:] = _np.einsum('alj->lja', self.otherGens[1]) # no need for affine_params
@@ -5779,7 +5779,7 @@ class LindbladErrorgen(LinearOperator):
                 dOdp[:, :, 0] = _np.squeeze(self.otherGens[0], 0)  # single diagonal term
                 dOdp[:, :, 1:] = _np.transpose(self.otherGens[1], (1, 2, 0))  # affine part: each gen has own param
             elif self.param_mode == "cptp":  # (coeffs = params^2)
-                diag_params, affine_params = otherParams[0:bsO - 1], otherParams[bsO - 1:]
+                diag_params = otherParams[0:bsO - 1]
                 dOdp = _np.empty((d2, d2, 2, bsO - 1), 'complex')
                 #dOdp[:,:,0,:] = _np.einsum('alj,a->lja', self.otherGens[0], 2*diag_params)
                 #dOdp[:,:,1,:] = _np.einsum('alj->lja', self.otherGens[1]) # no need for affine_params
@@ -5866,9 +5866,9 @@ class LindbladErrorgen(LinearOperator):
                 assert(nP == 2 * (bsO - 1))
                 hnP = bsO - 1  # half nP
                 d2Odp2 = _np.empty((d2, d2, nP, nP), 'complex')
-                #d2Odp2[:,:,0:hnP,0:hnp] = _np.einsum('alj,aq->ljaq', self.otherGens[0], 2*_np.identity(nP,'d'))
-                d2Odp2[:, :, 0:hnP, 0:hnp] = _np.transpose(self.otherGens[0], (1, 2, 0))[:, :, :, None] * 2 * _np.identity(nP, 'd')
-                d2Odp2[:, :, hnP:, hnp:] = 0  # 2nd deriv wrt. all affine params == 0
+                #d2Odp2[:,:,0:hnP,0:hnP] = _np.einsum('alj,aq->ljaq', self.otherGens[0], 2*_np.identity(nP,'d'))
+                d2Odp2[:, :, 0:hnP, 0:hnP] = _np.transpose(self.otherGens[0], (1, 2, 0))[:, :, :, None] * 2 * _np.identity(nP, 'd')
+                d2Odp2[:, :, hnP:, hnP:] = 0  # 2nd deriv wrt. all affine params == 0
             else:  # param_mode == "unconstrained" or "reldepol"
                 assert(nP == 2 * (bsO - 1))
                 d2Odp2 = _np.zeros([d2, d2, nP, nP], 'd')

@@ -1,14 +1,5 @@
-from .label import CircuitLabel as _CircuitLabel
-from .label import Label as _Label
-from ply import lex, yacc
-""" A text parser for reading GST input files. """
-from __future__ import division, print_function, absolute_import, unicode_literals
-#*****************************************************************
-#    pyGSTi 0.9:  Copyright 2015 Sandia Corporation
-#    This Software is released under the GPL license detailed
-#    in the file "license.txt" in the top-level pyGSTi directory
-#*****************************************************************
-"""
+""" A text parser for reading GST input files.
+
 Encapsulates a text parser for reading GST input files.
 
 ** Grammar **
@@ -39,6 +30,16 @@ string    :: expdstr [ [ multop ] expdstr ]*
 pstring   :: [ prep ] string
 ppstring  :: pstring [ povm ]
 """
+from __future__ import division, print_function, absolute_import, unicode_literals
+#*****************************************************************
+#    pyGSTi 0.9:  Copyright 2015 Sandia Corporation
+#    This Software is released under the GPL license detailed
+#    in the file "license.txt" in the top-level pyGSTi directory
+#*****************************************************************
+
+from .label import CircuitLabel as _CircuitLabel
+from .label import Label as _Label
+from ply import lex, yacc
 
 
 class CircuitLexer:

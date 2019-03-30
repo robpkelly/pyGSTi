@@ -274,7 +274,7 @@ def rb_gauge(mdl, target_model, weights=None, mxBasis=None, eigenvector_weightin
         mxBasis = mdl.basis.name
     assert(mxBasis == 'pp' or mxBasis == 'gm' or mxBasis == 'std'), "mxBasis must be 'gm', 'pp' or 'std'."
 
-    if mxBasis is 'pp' or 'gm':
+    if mxBasis in ['pp', 'gm']:
         assert(_np.amax(vec_l_operator.imag) < 10**(-15)), "If 'gm' or 'pp' basis, RB gauge matrix should be real."
         vec_l_operator = vec_l_operator.real
 
@@ -381,7 +381,6 @@ def L_matrix(mdl, target_model, weights=None):
             weights[key] = 1.
 
     normalizer = _np.sum(_np.array([weights[key] for key in list(target_model.operations.keys())]))
-    dim = len(list(target_model.operations.keys()))
     L_matrix = (1 / normalizer) * _np.sum(weights[key] * _np.kron(mdl.operations[key].todense().T,
                                                                   _np.linalg.inv(target_model.operations[key].todense())) for key in target_model.operations.keys())
 
@@ -592,7 +591,6 @@ def exact_RB_ASPs(mdl, group, m_max, m_min=0, m_step=1, success_outcomelabel=('0
         for label in group.labels:
             assert(label in list(mdl.operations.keys())), "Some group elements not in `mdl`, so `compilation must be specified."
 
-    d = int(round(_np.sqrt(mdl.dim)))
     i_max = _np.floor((m_max - m_min) / m_step).astype('int')
     m = _np.zeros(1 + i_max, int)
     P_m = _np.zeros(1 + i_max, float)

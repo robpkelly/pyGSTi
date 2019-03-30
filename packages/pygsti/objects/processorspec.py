@@ -307,7 +307,7 @@ class ProcessorSpec(object):
         # Lists that are all the hard-coded 1-qubit and 2-qubit gates.
         # future: should probably import these from _itgss somehow.
         hardcoded_oneQgates = ['I', 'X', 'Y', 'Z', 'H', 'P', 'HP', 'PH', 'HPH'] + ['C' + str(i) for i in range(24)]
-        hardcoded_twoQgates = ['CNOT', 'CPHASE', 'SWAP']
+        # hardcoded_twoQgates = ['CNOT', 'CPHASE', 'SWAP']
 
         # Currently we can only compile CNOT gates, although that should be fixed.
         for gate in twoQgates:
@@ -350,7 +350,7 @@ class ProcessorSpec(object):
 
             # If we've failed to find a Hadamard gate, we try but we only need paulieq compilation, we try
             # to find a gate that is Pauli-equivalent to Hadamard.
-            if H_name is None and compile_type is 'paulieq':
+            if H_name is None and compile_type == 'paulieq':
                 for gn in self.root_gate_names:
                     if _symp.unitary_is_a_clifford(self.root_gate_unitaries[gn]):
                         if _itgs.is_gate_pauli_equivalent_to_this_standard_unitary(self.root_gate_unitaries[gn], 'H'):
@@ -402,7 +402,6 @@ class ProcessorSpec(object):
             # If requested, try to compile remaining 2Q gates that are `non-local` (not between neighbouring qubits) using specific
             # algorithms.
             if add_nonlocal_twoQgates:
-                non_compilable = []
                 for gname, q1, q2 in not_locally_compilable:
                     library.add_nonlocal_compilation_of(_Label(gname, (q1, q2)),
                                                         verbosity=verbosity)

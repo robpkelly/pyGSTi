@@ -449,8 +449,9 @@ class StabilizerFrame(object):
                     amp_samples[k] = get_target_ampl(target)
             return (anchor, amp_samples)
 
-        else:  # both target and qs_to_sample are None - just get & return as
-              # many amplitudes as we can (for full state readout)
+        else:
+            # both target and qs_to_sample are None - just get & return as
+            # many amplitudes as we can (for full state readout)
 
             num_ampl_added = 1  # just to kick off the loop
             while(num_ampl_added > 0):
@@ -516,7 +517,7 @@ class StabilizerFrame(object):
         p : numpy array
             The 'phase vector' over the integers mod 4 representing the Clifford
         """
-        two_n, n = self.n * 2, self.n
+        n = self.n
         assert(_symp.check_valid_clifford(s, p)), "The `s`,`p` matrix-vector pair is not a valid Clifford!"
 
         if qubit_filter is not None:
@@ -636,8 +637,6 @@ class StabilizerFrame(object):
         -------
         None
         """
-        vs = (_np.array([1, 0], complex), _np.array([0, 1], complex))  # (v0,v1)
-
         debug = False
 
         qubits = list(range(self.n))  # start with all qubits being acted on
@@ -725,7 +724,7 @@ class StabilizerFrame(object):
         float
         """
 
-        if qubit_filter is not None or return_state != False:
+        if qubit_filter is not None or return_state is not False:
             raise NotImplementedError("`qubit_filter` and `return_state` args are not functional yet")
 
         # Could make this faster in the future by using anticommutator?

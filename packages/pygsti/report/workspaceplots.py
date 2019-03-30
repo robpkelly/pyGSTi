@@ -386,7 +386,7 @@ def generate_boxplot(subMxs,
     if sumUp:
         subMxSums = _np.array([[sum_up_mx(subMxs[iy][ix]) for ix in range(nXs)] for iy in range(nYs)], 'd')
 
-        if hoverInfo == True:
+        if hoverInfo is True:
             def hoverLabelFn(val, i, j):
                 """ Standard hover labels """
                 if _np.isnan(val): return ""
@@ -409,7 +409,7 @@ def generate_boxplot(subMxs,
 
     else:  # not summing up
 
-        if hoverInfo == True:
+        if hoverInfo is True:
             def hoverLabelFn(val, i, j, ii, jj):
                 """ Standard hover labels """
                 if _np.isnan(val): return ""
@@ -572,7 +572,7 @@ def circuit_color_boxplot(circuit_structure, subMxs, colormap,
 
     # Note: invert == True case not handled yet, and the below hover label
     # routines assume L,germ structure in particular
-    if hoverInfo and invert == False and isinstance(g, _objs.LsGermsStructure):
+    if hoverInfo and invert is False and isinstance(g, _objs.LsGermsStructure):
         if sumUp:
             def hoverLabelFn(val, iy, ix):
                 """ Standard hover labels """
@@ -906,7 +906,6 @@ def circuit_color_histogram(circuit_structure, subMxs, colormap,
             width=1)  # dash = 'dash') # dash options include 'dash', 'dot', and 'dashdot'
     )
 
-    xbins_for_numpy = _np.linspace(minval - binsize / 2.0, maxval + binsize / 2.0, nbins + 1)
     hist_values, np_bins = _np.histogram(ys, nbins, range=(minval - binsize / 2.0,
                                                            maxval + binsize / 2.0))
     if len(hist_values) > 0 and len(hist_values[hist_values > 0]) > 0:
@@ -1156,8 +1155,7 @@ def matrix_color_boxplot(matrix, xlabels=None, ylabels=None,
                 w = gridlinewidth
             else:
                 #add darker lines at multiples of thickLineInterval boxes
-                w = 3 if (thickLineInterval
-                          an d(i + 1) % thickLineInterval == 0) else 1
+                w = 3 if (thickLineInterval and (i + 1) % thickLineInterval == 0) else 1
 
             gridlines.append(
                 {
@@ -1619,7 +1617,7 @@ class ColorBoxPlot(WorkspacePlot):
                 ytitle = "error rate"
                 mx_fn = _mx_fn_errorrate  # use a *global* function so cache can tell it's the same
                 extra_arg = directGSTmodels
-                assert(sumUp == True), "Can only use 'errorrate' plot with sumUp == True"
+                assert(sumUp is True), "Can only use 'errorrate' plot with sumUp == True"
 
             elif ptyp == "directchi2":
                 colormapType = "linlog"
@@ -1708,9 +1706,9 @@ class ColorBoxPlot(WorkspacePlot):
                     element_dof = len(dataset.get_outcome_labels()) - 1
 
                 n_boxes, dof_per_box = _ph._compute_num_boxes_dof(subMxs, sumUp, element_dof)
-              # NOTE: currently dof_per_box is constant, and takes the total
-              # number of outcome labels in the DataSet, which can be incorrect
-              # when different sequences have different outcome labels.
+            # NOTE: currently dof_per_box is constant, and takes the total
+            # number of outcome labels in the DataSet, which can be incorrect
+            # when different sequences have different outcome labels.
 
             if len(subMxs) > 0:
                 dataMax = max([(0 if (mx is None or _np.all(_np.isnan(mx))) else _np.nanmax(mx))
@@ -2721,8 +2719,6 @@ class FitComparisonBoxPlot(WorkspacePlot):
     def _create(self, Xs, Ys, gssByYX, modelByYX, datasetByYX, objective,
                 Xlabel, Ylabel, scale, comm, wildcard):
 
-        xs = list(range(len(Xs)))
-        ys = list(range(len(Ys)))
         xlabels = list(map(str, Xs))
         ylabels = list(map(str, Ys))
 
@@ -3060,8 +3056,6 @@ class RandomizedBenchmarkingPlot(WorkspacePlot):
 
         xdata = _np.asarray(rbR.data.lengths)
         ydata = _np.asarray(rbR.data.ASPs)
-
-        xlabel = 'Sequence length'
 
         data = []  # list of traces
         data.append(go.Scatter(

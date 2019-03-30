@@ -358,7 +358,7 @@ class TermForwardSimulator(ForwardSimulator):
         poly = self.pr_as_poly(spamTuple, circuit, comm=None, memLimit=None)
         for i in range(self.Np):
             dpoly_di = poly.deriv(i)
-            dp[0, i] = dpoly.evaluate(self.paramvec)
+            dp[0, i] = dpoly_di.evaluate(self.paramvec)
 
         if returnPr:
             p = poly.evaluate(self.paramvec)
@@ -489,7 +489,6 @@ class TermForwardSimulator(ForwardSimulator):
         np1, np2 = num_param1_groups, num_param2_groups
         FLOATSIZE = 8  # in bytes: TODO: a better way
 
-        dim = self.dim
         wrtLen1 = (self.Np + np1 - 1) // np1  # ceiling(num_params / np1)
         wrtLen2 = (self.Np + np2 - 1) // np2  # ceiling(num_params / np2)
 
@@ -893,7 +892,7 @@ class TermForwardSimulator(ForwardSimulator):
                 nP2 = self.Np if (paramSlice2 is None or paramSlice2.start is None) else _slct.length(paramSlice2)
 
                 if deriv1MxToFill is not None:
-                    dpolys = evalSubTree.get_dp_polys(self, rholabel, elabels, paramSlice, fillComm)
+                    dpolys = evalSubTree.get_dp_polys(self, rholabel, elabels, paramSlice1, fillComm)
                     for i, (fInds, gInds) in enumerate(zip(fIndsList, gIndsList)):
                         dprCache = _bulk_eval_compact_polys(dpolys[i][0], dpolys[i][1], self.paramvec, (nStrs, nP1))  # ( nCircuits, nDerivCols)
                         dps1 = evalSubTree.final_view(dprCache, axis=0)  # ( nCircuits, nDerivCols)
@@ -905,7 +904,7 @@ class TermForwardSimulator(ForwardSimulator):
                         for i, (fInds, gInds) in enumerate(zip(fIndsList, gIndsList)):
                             _fas(deriv2MxToFill, [fInds, pslc2], dps2[gInds], add=sumInto)
                     else:
-                        dpolys = evalSubTree.get_dp_polys(self, rholabel, elabels, paramSlice, fillComm)
+                        dpolys = evalSubTree.get_dp_polys(self, rholabel, elabels, paramSlice2, fillComm)
                         for i, (fInds, gInds) in enumerate(zip(fIndsList, gIndsList)):
                             dprCache = _bulk_eval_compact_polys(dpolys[i][0], dpolys[i][1], self.paramvec, (nStrs, nP2))  # ( nCircuits, nDerivCols)
                             dps2 = evalSubTree.final_view(dprCache, axis=0)  # ( nCircuits, nDerivCols)
@@ -984,9 +983,9 @@ class TermForwardSimulator(ForwardSimulator):
                 if deriv2MxToFill is not None:
                     _mpit.gather_slices(blocks2, blk2Owners, deriv2MxToFill, [felInds],
                                         1, blk1Comm, gatherMemLimit)
-                   #Note: deriv2MxToFill gets computed on every inner loop completion
-                   # (to save mem) but isn't gathered until now (but using blk1Comm).
-                   # (just as prMxToFill is computed fully on each inner loop *iteration*!)
+                    #Note: deriv2MxToFill gets computed on every inner loop completion
+                    # (to save mem) but isn't gathered until now (but using blk1Comm).
+                    # (just as prMxToFill is computed fully on each inner loop *iteration*!)
 
         #collect/gather results
         subtreeElementIndices = [t.final_element_indices(evalTree) for t in subtrees]

@@ -581,7 +581,7 @@ class MatrixForwardSimulator(ForwardSimulator):
         #DEBUG CHECK
         #check_ps = _np.array( [ self.pr( (rholabel,elabel), circuit, clipTo, bScale) for elabel in elabels ])
         #assert(_np.linalg.norm(ps-check_ps) < 1e-8)
-        return ps
+        return ret
 
     def dpr(self, spamTuple, circuit, returnPr, clipTo):
         """
@@ -802,9 +802,7 @@ class MatrixForwardSimulator(ForwardSimulator):
             if returnPr: return ret, p
             else: return ret
 
-
 ## BEGIN CACHE FUNCTIONS
-
 
     def _compute_product_cache(self, evalTree, comm=None):
         """
@@ -1122,9 +1120,7 @@ class MatrixForwardSimulator(ForwardSimulator):
 
         return hProdCache
 
-
 ## END CACHE FUNCTIONS
-
 
     def default_distribute_method(self):
         """
@@ -2499,9 +2495,9 @@ class MatrixForwardSimulator(ForwardSimulator):
                 if deriv2MxToFill is not None:
                     _mpit.gather_slices(blocks2, blk2Owners, deriv2MxToFill, [felInds],
                                         1, blk1Comm, gatherMemLimit)
-                   #Note: deriv2MxToFill gets computed on every inner loop completion
-                   # (to save mem) but isn't gathered until now (but using blk1Comm).
-                   # (just as prMxToFill is computed fully on each inner loop *iteration*!)
+                    #Note: deriv2MxToFill gets computed on every inner loop completion
+                    # (to save mem) but isn't gathered until now (but using blk1Comm).
+                    # (just as prMxToFill is computed fully on each inner loop *iteration*!)
 
         #collect/gather results
         subtreeElementIndices = [t.final_element_indices(evalTree) for t in subtrees]

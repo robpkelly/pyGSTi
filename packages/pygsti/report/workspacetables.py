@@ -990,7 +990,6 @@ class GaugeRobustErrgenTable(WorkspaceTable):
 
     def _create(self, model, targetModel, confidenceRegionInfo, genType):
 
-        opLabels = model.get_primitive_op_labels()  # operation labels
         assert(isinstance(model, _objs.ExplicitOpModel)), "%s only works with explicit models" % str(type(self))
 
         colHeadings = ['Error rates', 'Value']
@@ -2294,7 +2293,7 @@ class GaugeOptParamsTable(WorkspaceTable):
         colHeadings = ('G-Opt Param', 'Value')
         formatters = ('Bold', 'Bold')
 
-        if gaugeOptArgs == False:  # signals *no* gauge optimization
+        if gaugeOptArgs is False:  # signals *no* gauge optimization
             goargs_list = [{'Method': "No gauge optimization was performed"}]
         else:
             goargs_list = [gaugeOptArgs] if hasattr(gaugeOptArgs, 'keys') \

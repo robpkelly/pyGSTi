@@ -5,6 +5,7 @@ import numpy as _np
 import itertools as _itertools
 import time as _time
 import collections as _collections
+import warnings as _warnings
 
 from ... import construction as _cnst
 from ... import objects as _objs
@@ -954,7 +955,6 @@ def get_obs_diffbasis_err_rate(dataset, pauli_fidpair, pauliBasisDicts,
     # telling us which 1 or 2 qubits to take the <Z> or <ZZ> expectation value of
     # (since the meas fiducial gets us in the right basis) -- i.e. the qubits to *not* trace over.
     obs_indices = [i for i, letter in enumerate(observable.rep) if letter != 'I']
-    N = len(observable)  # number of qubits
     minus_sign = _np.prod([pauli_meas.signs[i] for i in obs_indices])
 
     def unsigned_exptn_and_weight(circuit, observed_indices):

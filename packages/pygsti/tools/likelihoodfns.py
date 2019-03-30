@@ -914,7 +914,7 @@ def logl_approximate_hessian(model, dataset, circuit_list=None,
     # found above.
     if poissonPicture:
         totCnts = totalCntVec  # shorthand
-        S = cntVecMx / min_p - totCnts  # slope term that is derivative of logl at min_p
+        # S = cntVecMx / min_p - totCnts  # slope term that is derivative of logl at min_p
         S2 = -0.5 * cntVecMx / (min_p**2)          # 2nd derivative of logl term at min_p
 
         dprobs12_coeffs = \
@@ -924,7 +924,7 @@ def logl_approximate_hessian(model, dataset, circuit_list=None,
         # a 1D array of the diagonal of d2(logl)/dprobs2; shape = (nEls,)
 
     else:
-        S = cntVecMx / min_p  # slope term that is derivative of logl at min_p
+        # S = cntVecMx / min_p  # slope term that is derivative of logl at min_p
         S2 = -0.5 * cntVecMx / (min_p**2)  # 2nd derivative of logl term at min_p
         dprobs12_coeffs = \
             _np.where(probs < min_p, 2 * S2, -cntVecMx / pos_probs**2)
@@ -1215,7 +1215,7 @@ def two_delta_logl(model, dataset, circuit_list=None,
 
     if circuit_list is not None:
         if opLabelAliases is not None:
-            ds_strs = _tools.find_replace_tuple_list(
+            ds_strs = _lt.find_replace_tuple_list(
                 circuit_list, opLabelAliases)
         else:
             ds_strs = circuit_list
@@ -1258,7 +1258,7 @@ def two_delta_logl_terms(model, dataset, circuit_list=None,
 
     if circuit_list is not None:
         if opLabelAliases is not None:
-            ds_strs = _tools.find_replace_tuple_list(
+            ds_strs = _lt.find_replace_tuple_list(
                 circuit_list, opLabelAliases)
         else:
             ds_strs = circuit_list
@@ -1270,7 +1270,7 @@ def two_delta_logl_terms(model, dataset, circuit_list=None,
 
     Nsigma = (twoDeltaLogL_terms - k) / _np.sqrt(2 * k)
     pvalue = _np.array([1.0 - _stats.chi2.cdf(x, k) for x in twoDeltaLogL_terms], 'd')
-    return twoDeltaLogL, Nsigma, pvalue
+    return twoDeltaLogL_terms, Nsigma, pvalue
 
 
 #                        min_p = advancedOptions.get('minProbClip',1e-4)

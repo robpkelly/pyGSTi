@@ -11,7 +11,6 @@ import collections as _collections
 import os as _os
 import shutil as _shutil
 import numpy as _np
-#import uuid        as _uuid
 import random as _random
 import inspect as _inspect
 import sys as _sys
@@ -2254,8 +2253,9 @@ class WorkspaceTable(WorkspaceOutput):
         #Table initialization javascript: this will either be within the math-rendering (queued) function
         # (if '$' in ret['html']) or else at the *end* of the ready handler (if no math needed rendering).
         init_table_js = ''
-        if create_table_plots and resizable:  # make a resizable widget on *entire* plot
-             # (will only act on first call, but wait until first plots are created)
+        if create_table_plots and resizable:
+            # make a resizable widget on *entire* plot
+            # (will only act on first call, but wait until first plots are created)
             init_table_js += '    make_wstable_resizable("{tableID}");\n'.format(tableID=tableID)
         if add_autosize_handler and autosize == "continual":
             init_table_js += '    make_wsobj_autosize("{tableID}");\n'.format(tableID=tableID)
@@ -2338,7 +2338,6 @@ class WorkspacePlot(WorkspaceOutput):
             of the embeddable output.  Keys are `"html"` and `"js"`.
         """
         resizable = self.options.get('resizable', True)
-        autosize = self.options.get('autosize', 'none')
         valign = self.options.get('valign', 'top')
         overrideIDs = self.options.get('switched_item_id_overrides', {})
         switched_item_mode = self.options.get('switched_item_mode', 'inline')
@@ -2397,7 +2396,7 @@ class WorkspacePlot(WorkspaceOutput):
                         link_to=self.options['link_to'], link_to_id=plotDivID)
 
                 if switched_item_mode == 'separate files':
-                    assert(handlersOnly == False)  # doesn't make sense to put only handlers in a separate file
+                    assert(handlersOnly is False)  # doesn't make sense to put only handlers in a separate file
                     divJS.append(self._form_plot_js(plotDivID, fig_dict['js'], None))
                 else:
                     divJS.append(fig_dict['js'])
@@ -2415,7 +2414,7 @@ class WorkspacePlot(WorkspaceOutput):
                     js = self._form_plot_js(plotID, '\n'.join(divJS), base['js'])
 
             elif switched_item_mode == 'separate files':
-                assert(handlersOnly == False)  # doesn't make sense to put only handlers in a separate file
+                assert(handlersOnly is False)  # doesn't make sense to put only handlers in a separate file
                 assert('output_dir' in self.options and self.options['output_dir']), \
                     "Cannot render 'html' in separate files without a valid 'output_dir' render option"
                 base = self._render_html(plotID, divHTML, divJS, divIDs, self.switchpos_map,

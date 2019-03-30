@@ -1,19 +1,23 @@
 """ Idle Tomography reporting and plotting functions """
 from __future__ import division, print_function, absolute_import, unicode_literals
 
+import os as _os
 import time as _time
 import numpy as _np
 import itertools as _itertools
 import collections as _collections
+import warnings as _warnings
 
 from ... import _version
 from ...baseobjs import VerbosityPrinter as _VerbosityPrinter
 from ...objects import Circuit as _Circuit
+from ...objects import DataComparator as _DataComparator
 from ...report import workspace as _ws
 from ...report import workspaceplots as _wp
 from ...report import table as _reporttable
 from ...report import figure as _reportfigure
 from ...report import merge_helpers as _merge
+from ...report import autotitle as _autotitle
 from ...tools import timed_block as _timed_block
 from . import pauliobjs as _pobjs
 
@@ -317,7 +321,6 @@ class IdleTomographyObservedRatePlot(_ws.WorkspacePlot):
         obs_rate = info_dict['rate']
         data_pts = info_dict['data']
         errorbars = info_dict['errbars']
-        weights = info_dict['weights']
         fitCoeffs = info_dict['fitCoeffs']
         fitOrder = info_dict['fitOrder']
         if idtresults.predicted_obs_rates is not None:
@@ -364,7 +367,6 @@ class IdleTomographyObservedRatePlot(_ws.WorkspacePlot):
                 #Expectation value - assume weight at most 2 for now
                 if typ == "diffbasis":
                     obs_indices = [i for i, letter in enumerate(obsORoutcome.rep) if letter != 'I']
-                    N = len(obsORoutcome)  # number of qubits
                     minus_sign = _np.prod([fidpair[1].signs[i] for i in obs_indices])
 
                     # <Z> = p0 - p1 (* minus_sign)
@@ -893,7 +895,7 @@ def create_idletomography_report(results, filename, title="auto",
                 dscmp_switchBd.dscmp_gss[d1] = results_dict[dslbl1].circuit_structs['final']
                 dscmp_switchBd.refds[d1] = results_dict[dslbl1].dataset  # only used for #of spam labels below
 
-            dsComp = dict()
+            # dsComp = dict()
             all_dsComps = dict()
             indices = []
             for i in range(len(dataset_labels)):
@@ -935,9 +937,9 @@ def create_idletomography_report(results, filename, title="auto",
             #addqty('dsComparisonHistogram', ws.DatasetComparisonHistogramPlot, dscmp_switchBd.dscmp, display='pvalue')
             addqty(4, 'dsComparisonHistogram', ws.ColorBoxPlot,
                    'dscmp', dscmp_switchBd.dscmp_gss, dscmp_switchBd.refds, None,
-                   dscomparator=dscmp_switchBd.dscmp, typ="histogram", comm=comm)
+                   dscomparator=dscmp_switchBd.dscmp, typ="histogram")
             addqty(1, 'dsComparisonBoxPlot', ws.ColorBoxPlot, 'dscmp', dscmp_switchBd.dscmp_gss,
-                   dscmp_switchBd.refds, None, dscomparator=dscmp_switchBd.dscmp, comm=comm)
+                   dscmp_switchBd.refds, None, dscomparator=dscmp_switchBd.dscmp)
             toggles['CompareDatasets'] = True
         else:
             toggles['CompareDatasets'] = False  # not comparable!

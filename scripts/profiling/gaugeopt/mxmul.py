@@ -18,7 +18,7 @@ def main():
 
     with timed_block('np.dot', timeDict):
         for i in range(iterations):
-            npC = np.dot(a, b)
+            npC = np.dot(a, b)  # noqa: F841
 
     from mpi4py import MPI
     Comm = MPI.COMM_WORLD.Clone()
@@ -26,7 +26,7 @@ def main():
     with timed_block('mpidot', timeDict):
         for i in range(iterations):
             p = distribute_for_dot(size, Comm)
-            mpiC = mpidot(a, b, p, Comm)
+            mpiC = mpidot(a, b, p, Comm)  # noqa: F841
 
     if Comm.Get_rank() == 0:
         nProcessors = Comm.Get_size()
