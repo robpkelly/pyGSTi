@@ -67,6 +67,7 @@ matrix:
     - stage: lint
       script:
         - python -m flake8
+        - exit 1
 
     # Can't use matrix expansion for included jobs or custom stages, so we'll manually list extra jobs
     - stage: test-extra
