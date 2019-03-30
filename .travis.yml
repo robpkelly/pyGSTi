@@ -63,7 +63,7 @@ stages:
     if: branch IN (master, develop)
 
 matrix:
-  allow_failures:
+  include:
     - stage: lint
       script:
         - python -m flake8
@@ -113,12 +113,13 @@ matrix:
       python: 2.7
       env: NOSETESTS="mpi" NOSEOPTS=$NOSEOPTS_ALL
 
-  include:
     - stage: deploy
       python: 3.7
       env: NOSETESTS=none NOSEOPTS=$NOSEOPTS_DEFAULT
       install: skip
       script: python CI/deploy
+  allow_failures:
+    - stage: lint
 
 notifications:
   email:
