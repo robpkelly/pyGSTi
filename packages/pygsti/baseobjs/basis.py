@@ -25,7 +25,7 @@ import copy as _copy
 import math
 
 from .basisconstructors import _basisConstructorDict
-from .basisconstructors import cache_by_hashed_args
+from ..util import cache_by_hashed_args
 
 #Helper functions
 try:  basestring

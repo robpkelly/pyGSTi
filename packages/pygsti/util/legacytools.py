@@ -8,7 +8,7 @@ from __future__ import division, print_function, absolute_import, unicode_litera
 
 import warnings  as _warnings
 
-from ..baseobjs import parameterized
+from .parameterized import parameterized
 
 def warn_deprecated(name, replacement=None):
     """ 

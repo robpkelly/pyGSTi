@@ -14,7 +14,7 @@ from ...report import workspaceplots as _wp
 from ...report import table as _reporttable
 from ...report import figure as _reportfigure
 from ...report import merge_helpers as _merge
-from ...tools  import timed_block as _timed_block
+from ...util import timed_block as _timed_block
 from . import pauliobjs as _pobjs
 
 import plotly.graph_objs as go

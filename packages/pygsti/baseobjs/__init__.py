@@ -6,6 +6,10 @@ from __future__ import division, print_function, absolute_import, unicode_litera
 #    in the file "license.txt" in the top-level pyGSTi directory
 #*****************************************************************
 
+# Import names refactored into util
+# TODO remove
+from ..util import parameterized as parameterized, SmartCache, CustomDigestError, smart_cached
+
 #Import the most important/useful routines of each module into
 # the package namespace
 
@@ -18,8 +22,6 @@ from .verbosityprinter import VerbosityPrinter
 from .label import Label, CircuitLabel
 
 from .basis import Basis,BuiltinBasis,ExplicitBasis,TensorProdBasis,DirectSumBasis
-from .parameterized import parameterized
-from .smartcache import SmartCache, CustomDigestError, smart_cached
 
 #Imported in tools instead, since this makes more logical sense
 #from .basisconstructors import *

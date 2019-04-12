@@ -15,9 +15,6 @@ import scipy.sparse as _sps
 from collections    import namedtuple as _namedtuple
 import functools as _functools
 
-from .parameterized import parameterized as _parameterized
-from .opttools import cache_by_hashed_args
-
 #OLD TODO REMOVE
 #DefaultBasisInfo = _namedtuple('BuiltinBasisInfo', ['constructor', 'longname', 'real', 'sizesfn', 'labeler'])
 #@_parameterized # this decorator takes additional arguments (other than just f)

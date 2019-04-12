@@ -6,27 +6,21 @@ from __future__ import division, print_function, absolute_import, unicode_litera
 #    in the file "license.txt" in the top-level pyGSTi directory
 #*****************************************************************
 
+# Alias everything refactored into util
+# TODO remove
+from ..util import compattools, legacytools, opttools, slicetools, listtools
+from ..util import *
+
 #Import the most important/useful routines of each module into
 # the package namespace
 from .jamiolkowski import *
-from .listtools import *
 from .matrixtools import *
 from .lindbladtools import *
 from .likelihoodfns import *
 from .chi2fns import *
 from .basistools import *
 from .optools import *
-from .slicetools import *
-from .compattools import *
-from .legacytools import *
 from .mpitools import parallel_apply, get_comm
 from .symplectic import *
 from .matrixmod2 import *
 from .hypothesis import *
-#Special case: opttool need to reside in baseobjs,
-# but they're still "tools"
-from ..baseobjs.opttools import * 
-
-
-
-
