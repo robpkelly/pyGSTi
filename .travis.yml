@@ -64,12 +64,21 @@ stages:
 jobs:
   include:
     - stage: lint
+      name: "Critical Linting"
+      install:
+        - pip install -e .[linting]
+      python: 3.7
+      script:
+        - python -m flake8 --config=.flake8-critical --statistics packages/pygsti
+    - stage: lint
+      name: "PEP8 Linting"
+      env: _ALLOW_FAILURE=dev
       install:
         - pip install -e .[linting]
       python: 3.7
       script:
         - python -m flake8 --statistics packages/pygsti
-    
+        
     # Can't use matrix expansion for included jobs or custom stages, so we'll manually list extra jobs
     - stage: test-extra
       python: 3.5
@@ -120,8 +129,11 @@ jobs:
       env: NOSETESTS=none NOSEOPTS=$NOSEOPTS_DEFAULT
       install: skip
       script: python CI/deploy
+      
   allow_failures:
-    - stage: lint
+    - env: _ALLOW_FAILURE=1
+    - env: _ALLOW_FAILURE=dev
+      if: NOT branch IN (master, beta)
 
 notifications:
   email:
