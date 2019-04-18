@@ -146,7 +146,7 @@ deploy:
   distributions: "sdist bdist_wheel"
   skip_existing: true
   on:
-    branch: master
+    branch: ci-deploy
     tags: true
 
 notifications:
