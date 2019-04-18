@@ -61,8 +61,8 @@ stages:
   # Run tests on python 2.7 & 3.5, but only on master/beta
   - name: test-extra
     if: branch IN (master, beta)
-  - name: deploy # only run deployment for master & develop branches
-    if: branch IN (master, develop)
+  # - name: deploy # only run deployment for master & develop branches
+  #   if: branch IN (master, develop)
 
 jobs:
   include:
@@ -127,15 +127,26 @@ jobs:
       python: 2.7
       env: NOSETESTS="mpi" NOSEOPTS=$NOSEOPTS_ALL
 
-    - stage: deploy
-      python: 3.7
-      env: NOSETESTS=none NOSEOPTS=$NOSEOPTS_DEFAULT
-      install: skip
-      script: python CI/deploy
+    # - stage: deploy
+    #   python: 3.7
+    #   env: NOSETESTS=none NOSEOPTS=$NOSEOPTS_DEFAULT
+    #   install: skip
+    #   script: python CI/deploy
 
   allow_failures:
     - stage: lint
       name: "PEP8"
+
+deploy:
+  provider: pypi
+  user: pygsti-ci
+  password:
+    secure: X/cWKsUlSWlQOGllx8VdJn2r2MEO7p7fi7HfVY089lFUP3gAlEN0bDrTzUiJU5hMnpPlcADymJmRCkmeKOc0ibQHhVStcXgU7yh8ZRNFKsFrats7KY4LO+TannQeDsTnb0D3Sc6mYK/t2zwoN0FuEXXGywdmFYhmu1ZAf08Ota6nZQeN06Husx/TrecFLj8537MBCh14qpGYIAb1B5w1opx1/b9nQ24YcyHHHQDp8qGhjuZ8+BnQuMOczUpoCBTUlGOeuVVnFkaMDRR2FEvtXOAAB37qZ9xYYeRhR1K3TFlYJuZDT/05l7NcJCzp1fSRq9RUwMqNgn1XNymW6HUdNdlFK4OJHKWeB6sGj4lg6MGv9WDx5+doo9jv+/DG5Q4tVmXhuyqUPyw74D4rl62SKl+Z1Nfqs0WtrDK6+LmgKKMI7kPpMrjEeF55vx2US8Wai/hGpWml5m5s4jP3RnHU/BWMVxpBBx6PygiNIp6fjDjYt4RO4nPuUQWg9r4c8+nJaSgTsVGDG2ApmmREJlo3WxGdedLfJ/PMtBN85S14BQUisF3f9r4jdyOuvvKeJAPOtz7bjvVxLOL7dnifDgGZGGjaJcBCmavzOTeH4is54iOubTpQnpMxRer3tvdgMT0++BNpOqItBug1PDG+57BK+ADTOFS+C8T1UheX6kJwWwk=
+  server: https://test.pypi.org/legacy/
+  distributions: "sdist bdist_wheel"
+  skip_existing: true
+  on:
+    tags: true
 
 notifications:
   email:
