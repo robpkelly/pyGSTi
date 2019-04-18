@@ -9,6 +9,7 @@ branches:
     - beta
     - develop
     - ci-fixes
+    - feature-ci-deploy
 
 # Hold off testing feature & bugfix branches in case this competes w/other testing.
 #    - /^feature-.*$/
@@ -57,7 +58,8 @@ stages:
     if: NOT branch IN (master, beta)
   - name: lint-comprehensive
     if: branch IN (master, beta)
-  - test
+  - name: test
+    if: NOT branch = feature-ci-deploy
   # Run tests on python 2.7 & 3.5, but only on master/beta
   - name: test-extra
     if: branch IN (master, beta)
@@ -146,7 +148,7 @@ deploy:
   distributions: "sdist bdist_wheel"
   skip_existing: true
   on:
-    branch: master
+    branch: feature-ci-deploy
     tags: true
 
 notifications:
