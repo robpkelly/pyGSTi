@@ -60,7 +60,8 @@ stages:
   - test
   # Run tests on python 2.7 & 3.5, but only on master/beta
   - name: test-extra
-    if: branch IN (master, beta)
+    # if: branch IN (master, beta)
+    if: branch IN (beta) # REMOVEME
   # - name: deploy # only run deployment for master & develop branches
   #   if: branch IN (master, develop)
 
@@ -146,6 +147,7 @@ deploy:
   distributions: "sdist bdist_wheel"
   skip_existing: true
   on:
+    branch: master
     tags: true
 
 notifications:

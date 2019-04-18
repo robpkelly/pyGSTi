@@ -4,4 +4,4 @@
 #    in the file "license.txt" in the top-level pyGSTi directory
 #*****************************************************************
 """ PyGSTi version number """
-__version__ = "0.9.7.2b"
+__version__ = "0.9.7.2c"
