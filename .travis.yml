@@ -58,9 +58,7 @@ stages:
   - name: lint-comprehensive
     if: branch IN (master, beta)
   - test
-  # Run extra tests, but only on master/beta
   - name: test-extra
-    if: branch IN (master, beta, ci-debug)
   - name: push
     if: (branch = develop) AND (NOT (type = pull_request))
   - name: deploy
